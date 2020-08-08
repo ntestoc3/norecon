@@ -23,8 +23,8 @@
         )
 
 (setv ua (UserAgent :use-cache-server True ))
-(setv proxy {"http" "http://localhost:8080"
-             "https" "http://localhost:8080"})
+(setv proxy None #_{"http" "http://localhost:8080"
+                    "https" "http://localhost:8080"})
 
 (defn random-ua
   []
