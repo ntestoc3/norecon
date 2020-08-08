@@ -69,4 +69,34 @@
     (pool.map f datas)))
 
 
+(defn with-retry-limit
+  [f &optional
+   [exceptions Exception]
+   [tries -1]
+   [delay 0]
+   [max-delay None]
+   [backoff 1]
+   [jitter 0]
+   [calls 15]
+   [period 60]]
+  (import [ratelimit [limits RateLimitException]]
+          [retry [retry]])
+  (-> f
+      ((limits :calls calls :period period))
+      ((retry exceptions
+              :tries tries
+              :delay delay
+              :max-delay max-delay
+              :backoff backoff
+              :jitter jitter))))
+
+(comment
+  ;; 重试3次，每次等待5秒
+  (setv pf (with-retry-limit print :tries 3 :calls 2 :delay 5))
+
+  (pf 123)
+
+  (pf "456")
+
+  (pf 78))
 

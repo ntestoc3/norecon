@@ -11,6 +11,8 @@
         logging
         sys
         argparse
+        time
+        csv
 
         [bs4 [BeautifulSoup]]
         [datetime [datetime]]
@@ -20,7 +22,7 @@
         )
 
 (setv ua (UserAgent :use-cache-server True ))
-(setv proxy {"http" "http://localhost:8080"
+(setv proxy None #_{"http" "http://localhost:8080"
              "https" "http://localhost:8080"})
 
 (defn random-ua
@@ -60,8 +62,9 @@
                        dict)))
       list))
 
-(defn get-subs
+(defn get-subds
   [domain]
+  (logging.info "get subdomains for:%s" domain)
   (setv headers {"user-agent" (random-ua)})
   (setv s (requests.Session))
   (some-> (s.get
@@ -73,19 +76,40 @@
           (. text)
           parse-subdomains))
 
+(defn save-data
+  [out-path data]
+  (with [outf (open out-path "a" :newline "")]
+    (-> (csv.DictWriter outf (-> (first data)
+                                 (.keys)
+                                 list))
+        (.writerows data))))
+
+
 (defmain [&rest args]
   (logging.basicConfig :level logging.INFO
-                       :filename "app.log"
-                       :filemode "w"
+                       ;; :filename "app.log"
+                       ;; :filemode "w"
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
-  (setv ags (parse-args [["-d" "--domains-file" :type (argparse.FileType "r")
-                          :help "file contains domains"]
-                         ["domain" :nargs "+" :help "root domain for subdomain search"]]
-                        (rest args)
-                        :description "find subdomains for root domain"))
-  (logging.info "args:%s" ags)
+  (setv opts (parse-args [["-df" "--domains-file" :type (argparse.FileType "r")
+                           :help "file contains domains"]
+                          ["-o" "--output" :type str
+                           :default "out.csv"
+                           :help "output file path"]
+                          ["domain" :nargs "+" :help "root domain for subdomain search"]]
+                         (rest args)
+                         :description "find subdomains for root domain"))
+  (when opts.domains-file
+    (+= opts.domain (-> (opts.domains-file.read)
+                        (.splitlines)))
+    (opts.domains-file.close))
+  (for [d opts.domain]
+    (->> (get-subds d)
+         (filter #%(-> (of %1 "ip")
+                       (!= "none")))
+         (save-data opts.output))
+    (time.sleep 2))
 
   (logging.info "over!")
   )
