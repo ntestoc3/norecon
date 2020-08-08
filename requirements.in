@@ -5,4 +5,4 @@ requests
 retry
 lxml
 ratelimit
-
+publicsuffix2

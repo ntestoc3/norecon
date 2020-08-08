@@ -19,6 +19,7 @@
         [retry [retry]]
         [fake-useragent [UserAgent]]
         [helpers [*]]
+        [publicsuffix2 [get-public-suffix]]
         )
 
 (setv ua (UserAgent :use-cache-server True ))
@@ -107,10 +108,11 @@
     (opts.domains-file.close))
 
   (for [d opts.domain]
-    (some->2> (get-subds d)
-              (filter #%(-> (of %1 "ip")
-                            (!= "none")))
-              (save-data opts.output))
+    (some->> (get-public-suffix d)
+             (get-subds)
+             (filter #%(-> (of %1 "ip")
+                           (!= "none")))
+             (save-data opts.output))
     (time.sleep 2))
 
   (logging.info "over!")

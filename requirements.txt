@@ -17,7 +17,9 @@ funcparserlib==0.3.6      # via hy
 hy==0.19.0                # via -r requirements.in
 idna==2.10                # via requests
 lxml==4.5.2               # via -r requirements.in
+publicsuffix2==2.20191221  # via -r requirements.in
 py==1.9.0                 # via retry
+ratelimit==2.2.1          # via -r requirements.in
 requests==2.24.0          # via -r requirements.in
 retry==0.9.2              # via -r requirements.in
 rply==0.7.7               # via hy
