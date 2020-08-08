@@ -1,8 +1,4 @@
 
-(require [hy.extra.anaphoric [*]])
-;; 对于I/O操作,使用线程池可以降低cpu和内存占用
-;; 去掉.dummy就使用多进程
-(import [multiprocessing.dummy [Pool]])
 
 
 (defmacro ->2> [head &rest args]
@@ -43,11 +39,14 @@
        (print (.format "total run time: {:.5f} s" (- ~end-time ~start-time)))))
 
 (defmacro with-exception [&rest body]
-  (import logging)
-  `(try
-     ~@body
-     (except [e Exception]
-       (logging.error "exception: %s" e))))
+  `(do
+     (import logging)
+     (try
+       ~@body
+       (except [e Exception]
+         (logging.error "exception: %s" e)))))
+
+(require [hy.extra.anaphoric [*]])
 
 (defn select-keys
   [d ks]
@@ -56,10 +55,17 @@
                      (in ks)))
        dict))
 
+(import [multiprocessing.dummy [Pool :as ThreadPool]]
+        [multiprocessing [Pool :as ProcPool]])
+
 (defn pmap
-  [f datas &optional [proc 5]]
-  ":proc 为进程数量"
-  (with [pool (Pool :processes proc)]
+  [f datas &optional [proc 5] [use-proc False]]
+  ":proc 为进程或线程数量
+   :use-proc 是否使用进程池，默认为False，使用线程池
+     注意，使用进程池的话，f不能使用匿名函数"
+  (with [pool (if use-proc
+                  (ProcPool :processes proc)
+                  (ThreadPool :processes proc))]
     (pool.map f datas)))
 
 

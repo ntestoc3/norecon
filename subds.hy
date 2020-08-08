@@ -1,20 +1,23 @@
 #!/usr/bin/env hy
 
-(require [hy.extra.anaphoric [*]])
-(require [helpers [*]])
+(require [hy.extra.anaphoric [*]]
+         [helpers [*]]
+         )
 
-(import [bs4 [BeautifulSoup]])
-(import requests)
-(import json)
-(import re)
-(import os)
-(import logging)
-(import sys)
-(import argparse)
-(import [datetime [datetime]])
-(import [retry [retry]])
-(import [fake-useragent [UserAgent]])
-(import [helpers [*]])
+(import requests
+        json
+        re
+        os
+        logging
+        sys
+        argparse
+
+        [bs4 [BeautifulSoup]]
+        [datetime [datetime]]
+        [retry [retry]]
+        [fake-useragent [UserAgent]]
+        [helpers [*]]
+        )
 
 (setv ua (UserAgent :use-cache-server True ))
 (setv proxy {"http" "http://localhost:8080"
