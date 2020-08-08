@@ -100,10 +100,12 @@
                           ["domain" :nargs "+" :help "root domain for subdomain search"]]
                          (rest args)
                          :description "find subdomains for root domain"))
+
   (when opts.domains-file
     (+= opts.domain (-> (opts.domains-file.read)
                         (.splitlines)))
     (opts.domains-file.close))
+
   (for [d opts.domain]
     (->> (get-subds d)
          (filter #%(-> (of %1 "ip")
