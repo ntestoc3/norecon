@@ -22,7 +22,7 @@
         )
 
 (setv ua (UserAgent :use-cache-server True ))
-(setv proxy None #_{"http" "http://localhost:8080"
+(setv proxy {"http" "http://localhost:8080"
              "https" "http://localhost:8080"})
 
 (defn random-ua
@@ -38,10 +38,10 @@
 
 (defn parse-last-history-url
   [body]
-  (-> (BeautifulSoup body "lxml")
-      (.select-one "div.history-item a")
-      (of "href")
-      (->> (+ "https:"))))
+  (some-> (BeautifulSoup body "lxml")
+          (.select-one "div.history-item.col-md-4 a")
+          (of "href")
+          (->> (+ "https:"))))
 
 (defn parse-table-rows
   [table]
@@ -107,10 +107,10 @@
     (opts.domains-file.close))
 
   (for [d opts.domain]
-    (->> (get-subds d)
-         (filter #%(-> (of %1 "ip")
-                       (!= "none")))
-         (save-data opts.output))
+    (some->2> (get-subds d)
+              (filter #%(-> (of %1 "ip")
+                            (!= "none")))
+              (save-data opts.output))
     (time.sleep 2))
 
   (logging.info "over!")

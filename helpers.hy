@@ -1,6 +1,4 @@
 
-
-
 (defmacro ->2> [head &rest args]
   "Thread macro for second arg"
   (setv ret head)
@@ -28,15 +26,51 @@
             g
             (last steps))))
 
+(defmacro some->> [head &rest args]
+  "Thread macro for last arg if not None"
+  (setv g (gensym "some->>"))
+  (setv steps (->> args
+                   (map (fn [step]
+                          `(if (none? ~g)
+                               None
+                               (->> ~g ~step))))
+                   list))
+  (setv set-steps (map (fn [step]
+                         `(setv ~g ~step))
+                       (butlast steps)))
+  `(do (setv ~g ~head)
+       ~@set-steps
+       ~(if (empty? (list steps))
+            g
+            (last steps))))
+
+(defmacro some->2> [head &rest args]
+  "Thread macro for 2nd arg if not None"
+  (setv g (gensym "some->2>"))
+  (setv steps (->> args
+                   (map (fn [step]
+                          `(if (none? ~g)
+                               None
+                               (->2> ~g ~step))))
+                   list))
+  (setv set-steps (map (fn [step]
+                         `(setv ~g ~step))
+                       (butlast steps)))
+  `(do (setv ~g ~head)
+       ~@set-steps
+       ~(if (empty? (list steps))
+            g
+            (last steps))))
 
 (defmacro bench [&rest body]
-  (import time)
   (setv start-time (gensym "start-time"))
   (setv end-time (gensym "end-time"))
-  `(do (setv ~start-time (time.time))
-       ~@body
-       (setv ~end-time (time.time))
-       (print (.format "total run time: {:.5f} s" (- ~end-time ~start-time)))))
+  `(do
+     (import time)
+     (setv ~start-time (time.time))
+     ~@body
+     (setv ~end-time (time.time))
+     (print (.format "total run time: {:.5f} s" (- ~end-time ~start-time)))))
 
 (defmacro with-exception [&rest body]
   `(do
