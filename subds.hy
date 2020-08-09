@@ -79,11 +79,12 @@
 
 (defn save-data
   [out-path data]
-  (with [outf (open out-path "a" :newline "")]
-    (-> (csv.DictWriter outf (-> (first data)
-                                 (.keys)
-                                 list))
-        (.writerows data))))
+  (when (not (empty? data))
+    (with [outf (open out-path "a" :newline "")]
+      (-> (csv.DictWriter outf (-> (first data)
+                                   (.keys)
+                                   list))
+          (.writerows data)))))
 
 
 (defmain [&rest args]
