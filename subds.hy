@@ -113,6 +113,7 @@
              (get-subds)
              (filter #%(-> (of %1 "ip")
                            (!= "none")))
+             list
              (save-data opts.output))
     (time.sleep 2))
 
