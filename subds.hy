@@ -86,7 +86,6 @@
                                    list))
           (.writerows data)))))
 
-
 (defmain [&rest args]
   (logging.basicConfig :level logging.INFO
                        ;; :filename "app.log"
