@@ -37,7 +37,7 @@
   (logging.info "filter valid domain %s" ds)
   (setv resolver (doto (Resolver :configure False)
                        (setattr "nameservers" proxies)
-                       (setattr "lifetime" 3)))
+                       (setattr "lifetime" 60)))
   (try (-> ds
            (->> (map #%(-> (valid-domain resolver %1)
                            (asyncio.create-task))))
@@ -45,7 +45,7 @@
            unpack-iterable
            (asyncio.gather :return-exceptions True)
            await
-           (doto (print " --- return"))
+           ;; (doto (print " --- return"))
            (->> (filter identity))
            list
            )
