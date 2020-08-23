@@ -7,3 +7,4 @@ lxml
 ratelimit
 publicsuffix2
 async_dns
+dnspython

@@ -12,8 +12,10 @@
         csv
         io
         requests
+        dns
 
         [ipaddress [ip-address]]
+        [dns.resolver [Resolver]]
         [retry [retry]]
         [helpers [*]]
         )
@@ -41,6 +43,17 @@
             (sorted :key #%(of %1 "reliability"))
             (->> (map #%(of %1 "ip_address")))
             list)))
+
+(defn check-resolve
+  [ns]
+  (try (-> (doto (Resolver :configure False)
+                 (setattr "nameservers" [ns])
+                 (setattr "lifetime" 3))
+           (.resolve "bing.com" :raise-on-no-answer False))
+       True
+       (except [[dns.exception.Timeout
+                 dns.resolver.NoNameservers]]
+         False)))
 
 (defn float-range [x &optional [min-f 0.1] [max-f 1.0]]
   (try
@@ -75,6 +88,7 @@
                          :description "valid domain resolve"))
   (->> (get-nameservers :ipv6 opts.ipv6
                         :min-reliability opts.reliability)
+       (filter check-resolve)
        (.join "\n")
        (opts.output.write))
   )
