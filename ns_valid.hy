@@ -9,50 +9,49 @@
         sys
         argparse
         time
+        dns
 
         [retry [retry]]
         [helpers [*]]
-        [async-dns [types]]
-        [async-dns.resolver [ProxyResolver]]
+        [dns.asyncresolver [Resolver]]
+        [dns.rdatatype :as rtype]
         asyncio
         )
 
-(defn/a valid-domain?
-  [resolver domain]
-  (try (setv r (some-> (resolver.query-safe domain types.NS)
-                       await
-                       (. an)
-                       empty?
-                       not
-                       (when domain)))
-       (logging.info "valid domain %s return %s" domain r)
-       r
-       (except [e Exception]
-         (logging.exception "valid domain?"))
-       (finally
-         (logging.info f"valid domain {domain} return."))))
+(with-decorator (retry Exception :delay 5 :backoff 4 :max-delay 120)
+  (defn/a valid-domain
+    [resolver domain]
+    (try (some-> (resolver.resolve domain :rdtype rtype.NS)
+                 await
+                 (when domain))
+         (except [e [dns.exception.Timeout
+                     dns.resolver.NoNameservers
+                     dns.resolver.NXDOMAIN
+                     dns.resolver.NoAnswer
+                     ]]
+           None
+           #_(logging.error "error valid domain? %s" e)))))
 
 (defn/a filter-valid-domain
   [ds &optional proxies]
   (logging.info "filter valid domain %s" ds)
-  (setv resolver (ProxyResolver :proxies proxies))
-  (setv r None)
-  (try (setv r (->> ds
-                    (map #%(-> (valid-domain? resolver %1)
-                               asyncio.create-task))
-                    list
-                    unpack-iterable
-                    asyncio.gather
-                    await
-                    ;; (filter identity)
-                    ;; list
-                    ))
-       (logging.exception "filter valid domain return:%s" r)
-       r
+  (setv resolver (doto (Resolver :configure False)
+                       (setattr "nameservers" proxies)
+                       (setattr "lifetime" 3)))
+  (try (-> ds
+           (->> (map #%(-> (valid-domain resolver %1)
+                           (asyncio.create-task))))
+           list
+           unpack-iterable
+           (asyncio.gather :return-exceptions True)
+           await
+           (doto (print " --- return"))
+           (->> (filter identity))
+           list
+           )
        (except [e Exception]
-         (logging.exception "filter valid domain"))
-       (finally
-         (logging.exception "filter valid domain finally.result:%s" r))))
+         (print "errors:" e)
+         #_(logging.exception "filter valid domain"))))
 
 (defn read-valid-lines
   [f]
@@ -75,7 +74,7 @@
        (opts.output.write)))
 
 (defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
+  (logging.basicConfig :level logging.WARN
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
