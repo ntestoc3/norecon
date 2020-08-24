@@ -40,7 +40,7 @@
                        (setattr "lifetime" timeout)))
   (try (-> ds
            (->> (map #%(-> (valid-domain resolver %1)
-                           (asyncio.create-task))))
+                           (asyncio.ensure-future))))
            list
            unpack-iterable
            (asyncio.gather :return-exceptions True)
