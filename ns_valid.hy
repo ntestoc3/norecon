@@ -33,11 +33,11 @@
            #_(logging.error "error valid domain? %s" e)))))
 
 (defn/a filter-valid-domain
-  [ds &optional proxies]
+  [ds &optional proxies [timeout 60]]
   (logging.info "filter valid domain %s" ds)
   (setv resolver (doto (Resolver :configure False)
                        (setattr "nameservers" proxies)
-                       (setattr "lifetime" 60)))
+                       (setattr "lifetime" timeout)))
   (try (-> ds
            (->> (map #%(-> (valid-domain resolver %1)
                            (asyncio.create-task))))
@@ -68,7 +68,9 @@
                      opts.domain
                      (+ opts.domain
                         (read-valid-lines opts.domains))))
-  (->> (filter-valid-domain domains :proxies resolver)
+  (->> (filter-valid-domain domains
+                            :proxies resolver
+                            :timeout opts.timeout)
        await
        (.join "\n")
        (opts.output.write)))
@@ -86,6 +88,10 @@
                            :type (argparse.FileType "r")
                            :default sys.stdin
                            :help "domains file to check"]
+                          ["-t" "--timeout"
+                           :type int
+                           :default 60
+                           :help "domain query timeout"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")

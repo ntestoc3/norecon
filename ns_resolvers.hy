@@ -72,23 +72,23 @@
 
   (setv opts (parse-args [["-6" "--ipv6"
                            :action "store_true"
-                           :help "use ipv6 dns server"]
+                           :help "是否使用ipv6,默认不使用"]
                           ["-r" "--reliability"
                            :type float-range
                            :default 1
-                           :help "min dns server reliability"]
+                           :help "dns服务器的可用性"]
                           ["-t" "--timeout"
                            :type int
                            :default 5
-                           :help "domain query timeout"]
+                           :help "域名查询超时时间"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
                            :default sys.stdout
-                           :help "output domain resolver ip to file"]
+                           :help "输出dns查询服务器列表"]
                           ]
                          (rest args)
-                         :description "valid domain resolve"))
+                         :description "获取dns查询服务器列表，并按访问速度排序"))
   (-> (get-nameservers :ipv6 opts.ipv6
                        :min-reliability opts.reliability)
       (->2> (pmap (fn [ns]
