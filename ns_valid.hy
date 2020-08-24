@@ -34,7 +34,7 @@
 
 (defn/a filter-valid-domain
   [ds &optional proxies [timeout 60]]
-  (logging.info "filter valid domain %s" ds)
+  (logging.info "filter valid domain %s" (len (list ds)))
   (setv resolver (doto (Resolver :configure False)
                        (setattr "nameservers" proxies)
                        (setattr "lifetime" timeout)))
@@ -52,13 +52,6 @@
        (except [e Exception]
          (print "errors:" e)
          #_(logging.exception "filter valid domain"))))
-
-(defn read-valid-lines
-  [f]
-  (->> (.read f)
-       (.splitlines)
-       (filter (comp not empty?))
-       list))
 
 (defn/a main
   [opts]
