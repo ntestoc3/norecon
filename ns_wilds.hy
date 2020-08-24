@@ -37,6 +37,8 @@
       unpack-iterable
       (asyncio.gather)
       await
+      ;; (doto (->> (logging.info "wildcards domains result:%s")))
+      unpack-iterable
       concat))
 
 (defn/a main
@@ -73,6 +75,7 @@
                               :proxies resolver
                               :timeout opts.timeout)
                             await)))
+      ;; (doto (->> (logging.info "result:%s")))
       set
       (->> (.join "\n"))
       (opts.output.write)))
