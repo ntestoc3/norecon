@@ -21,6 +21,7 @@
 
 (defn/a get-domains
   [domain-top-name &optional [tlds ["com" "cn" "org" "jp"]] &kwargs kwargs]
+  (logging.info "get wildcard domain for:%s." domain-top-name)
   (-> (map #%(.format "{}.{}" domain-top-name %1) tlds)
       (filter-valid-domain #** kwargs)
       await))
@@ -50,35 +51,30 @@
   (setv by-wild #%(.endswith %1 ".*"))
   (setv tlds (-> (PublicSuffixList :psl-file opts.tld-file)
                  (. tlds)))
-  (setv r
-        (-> domains
-            (sorted :key by-wild)
-            (group-by :key by-wild)
-            (->> (map #%(identity
-                          [(if (first %1)
-                               "wildcards"
-                               "normal")
-                           (-> (second %1)
-                               list)])))
-            dict
-            (doto print)
-            (as-> d
-                  (+ (-> (.get d "normal" [])
-                         (->> (map get-public-suffix))
-                         list
-                         (doto (print "--normal list"))
-                         )
-                     (-> (.get d "wildcards" [])
-                         (get-wildcards-domains
-                           :tlds tlds
-                           :proxies resolver
-                           :timeout opts.timeout)
-                         await)))))
-  (logging.info "r:%s" r)
-  (->> r
-       set
-       (.join "\n")
-       (opts.output.write)))
+  (-> domains
+      (sorted :key by-wild)
+      (group-by :key by-wild)
+      (->> (map #%(identity
+                    [(if (first %1)
+                         "wildcards"
+                         "normal")
+                     (-> (second %1)
+                         list)])))
+      dict
+      (as-> d
+            (+ (-> (.get d "normal" [])
+                   (->> (map get-public-suffix))
+                   list
+                   )
+               (-> (.get d "wildcards" [])
+                   (get-wildcards-domains
+                     :tlds tlds
+                     :proxies resolver
+                     :timeout opts.timeout)
+                   await)))
+      set
+      (->> (.join "\n"))
+      (opts.output.write)))
 
 
 (comment
@@ -93,6 +89,7 @@
   )
 (defmain [&rest args]
   (logging.basicConfig :level logging.INFO
+                       :handler (logging.StreamHandler sys.stderr)
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
@@ -125,4 +122,5 @@
   (doto (asyncio.get-event-loop)
         (.run-until-complete (main opts))
         (.close))
+  (logging.info "over!")
   )
