@@ -94,6 +94,7 @@
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
   (setv opts (parse-args [["-d" "--domains" :type (argparse.FileType "r")
+                           :default sys.stdin
                            :help "包含域名列表的文件"]
                           ["-o" "--output" :type str
                            :default "out.csv"
