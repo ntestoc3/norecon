@@ -62,15 +62,25 @@
             g
             (last steps))))
 
-(defmacro bench [&rest body]
+(defmacro timev [&rest body]
   (setv start-time (gensym "start-time"))
   (setv end-time (gensym "end-time"))
+  (setv result (gensym "r"))
   `(do
      (import time)
      (setv ~start-time (time.time))
-     ~@body
+     (setv ~result ~@body)
      (setv ~end-time (time.time))
-     (print (.format "total run time: {:.5f} s" (- ~end-time ~start-time)))))
+     [(- ~end-time ~start-time) ~result]))
+
+(defmacro time [&rest body]
+  (setv r (gensym "r"))
+  (setv t (gensym "t"))
+  `(do
+     (require helpers)
+     (setv [~t ~r] (helpers.timev ~@body))
+     (print (.format "total run time: {:.5f} s" ~t) )
+     ))
 
 (defmacro with-exception [&rest body]
   `(do

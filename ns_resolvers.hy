@@ -44,16 +44,15 @@
             (->> (map #%(of %1 "ip_address")))
             list)))
 
-(defn check-resolve
-  [ns]
+(defn resolve
+  [ns &optional [target "bing.com"] [timeout 5]]
   (try (-> (doto (Resolver :configure False)
                  (setattr "nameservers" [ns])
-                 (setattr "lifetime" 3))
-           (.resolve "bing.com" :raise-on-no-answer False))
-       True
+                 (setattr "lifetime" timeout))
+           (.resolve target :raise-on-no-answer False))
        (except [[dns.exception.Timeout
                  dns.resolver.NoNameservers]]
-         False)))
+         None)))
 
 (defn float-range [x &optional [min-f 0.1] [max-f 1.0]]
   (try
@@ -78,6 +77,10 @@
                            :type float-range
                            :default 1
                            :help "min dns server reliability"]
+                          ["-t" "--timeout"
+                           :type int
+                           :default 5
+                           :help "domain query timeout"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
@@ -86,9 +89,15 @@
                           ]
                          (rest args)
                          :description "valid domain resolve"))
-  (->> (get-nameservers :ipv6 opts.ipv6
-                        :min-reliability opts.reliability)
-       (filter check-resolve)
-       (.join "\n")
-       (opts.output.write))
+  (-> (get-nameservers :ipv6 opts.ipv6
+                       :min-reliability opts.reliability)
+      (->2> (pmap (fn [ns]
+                    (+ [ns]
+                       (timev (resolve ns :timeout opts.timeout))))
+                  :proc 30)
+            (filter (comp identity last)))
+      (sorted :key second)
+      (->> (map first)
+           (.join "\n"))
+      (opts.output.write))
   )
