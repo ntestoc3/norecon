@@ -93,21 +93,22 @@
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
-  (setv opts (parse-args [["-df" "--domains-file" :type (argparse.FileType "r")
-                           :help "file contains domains"]
+  (setv opts (parse-args [["-d" "--domains" :type (argparse.FileType "r")
+                           :help "包含域名列表的文件"]
                           ["-o" "--output" :type str
                            :default "out.csv"
                            :help "output file path"]
-                          ["domain" :nargs "+" :help "root domain for subdomain search"]]
+                          ["domain" :nargs "*" :help "要查找的域名"]]
                          (rest args)
-                         :description "find subdomains for root domain"))
+                         :description "查找域名对应的所有子域名"))
 
-  (when opts.domains-file
-    (+= opts.domain (-> (opts.domains-file.read)
-                        (.splitlines)))
-    (opts.domains-file.close))
-
-  (for [d opts.domain]
+  (setv domains  (if (opts.domains.isatty)
+                     (if opts.domain
+                         opts.domain
+                         (read-valid-lines opts.domains))
+                     (concat opts.domain
+                             (read-valid-lines opts.domains))))
+  (for [d domains]
     (some->> (get-public-suffix d)
              (get-subds)
              (filter #%(-> (of %1 "ip")
