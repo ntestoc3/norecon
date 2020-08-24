@@ -33,7 +33,7 @@
       (->> (map #%(-> (.split %1 ".")
                       (of -2)
                       (get-domains #** kwargs)
-                      (asyncio.create-task))))
+                      (asyncio.ensure-future))))
       list
       unpack-iterable
       (asyncio.gather)
