@@ -37,8 +37,7 @@
       unpack-iterable
       (asyncio.gather)
       await
-      (->> (reduce +))
-      ))
+      concat))
 
 (defn/a main
   [opts]
@@ -48,8 +47,8 @@
                      (if opts.domain
                          opts.domain
                          (read-valid-lines opts.domains))
-                     (+ opts.domain
-                        (read-valid-lines opts.domains))))
+                     (concat opts.domain
+                             (read-valid-lines opts.domains))))
   (setv by-wild #%(.endswith %1 ".*"))
   (setv tlds (-> (PublicSuffixList :psl-file opts.tld-file)
                  (. tlds)))
@@ -64,16 +63,16 @@
                          list)])))
       dict
       (as-> d
-            (+ (-> (.get d "normal" [])
-                   (->> (map get-public-suffix))
-                   list
-                   )
-               (-> (.get d "wildcards" [])
-                   (get-wildcards-domains
-                     :tlds tlds
-                     :proxies resolver
-                     :timeout opts.timeout)
-                   await)))
+            (concat (some-> (.get d "normal" [])
+                            (->> (map get-public-suffix))
+                            list
+                            )
+                    (some-> (.get d "wildcards" [])
+                            (get-wildcards-domains
+                              :tlds tlds
+                              :proxies resolver
+                              :timeout opts.timeout)
+                            await)))
       set
       (->> (.join "\n"))
       (opts.output.write)))

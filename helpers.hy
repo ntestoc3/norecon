@@ -142,6 +142,12 @@
        (filter (comp not empty?))
        list))
 
+(defn concat
+  [&rest ls]
+  (->2> (filter identity ls)
+        (reduce + [])
+        list))
+
 (comment
   ;; 重试3次，每次等待5秒
   (setv pf (with-retry-limit print :tries 3 :calls 2 :delay 5))
