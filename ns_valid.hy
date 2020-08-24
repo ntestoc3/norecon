@@ -34,7 +34,6 @@
 
 (defn/a filter-valid-domain
   [ds &optional proxies [timeout 60]]
-  (logging.info "filter valid domain %s" (len (list ds)))
   (setv resolver (doto (Resolver :configure False)
                        (setattr "nameservers" proxies)
                        (setattr "lifetime" timeout)))
@@ -45,7 +44,6 @@
            unpack-iterable
            (asyncio.gather :return-exceptions True)
            await
-           ;; (doto (print " --- return"))
            (->> (filter identity))
            list
            )
@@ -69,7 +67,7 @@
        (opts.output.write)))
 
 (defmain [&rest args]
-  (logging.basicConfig :level logging.WARN
+  (logging.basicConfig :level logging.INFO
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 

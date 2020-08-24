@@ -22,23 +22,24 @@
 (setv psl (PublicSuffixList))
 
 (defn/a get-domains
-  [domain-top-name &optional resolver]
+  [domain-top-name &kwargs kwargs]
   (-> (map #%(.format "{}.{}" domain-top-name %1) psl.tlds)
-      (filter-valid-domain :proxies resolver)
+      (filter-valid-domain #** kwargs)
       await))
 
 (defn/a get-wildcards-domains
-  [wd-domains &optional resolver]
+  [wd-domains &kwargs kwargs]
   (-> wd-domains
       (->> (map #%(-> (.split %1 ".")
                       (of -2)
-                      (get-domains :resolver resolver)
-                      (asyncio.ensure-future))))
+                      (get-domains #** kwargs)
+                      (asyncio.create-task))))
+      list
       unpack-iterable
-      (asyncio.gather :return-exceptions True)
+      (asyncio.gather)
       await
-      unpack-iterable
-      +))
+      (->> (reduce +))
+      ))
 
 (defn/a main
   [opts]
@@ -49,7 +50,7 @@
                      (+ opts.domain
                         (read-valid-lines opts.domains))))
   (setv by-wild #%(.endswith %1 ".*"))
-  (setv [ns wds]
+  (setv r
         (-> domains
             (sorted :key by-wild)
             (group-by :key by-wild)
@@ -61,13 +62,18 @@
                                list)])))
             dict
             (doto print)
-            ((juxt #%(->> (of %1 "normal")
-                          (map get-public-suffix)
-                          list)
-                   #%(-> (of %1 "wildcards")
-                         (get-wildcards-domains :resolver resolver))))))
-  (->> (await wds)
-       (+ ns)
+            (as-> d
+                  (+ (-> (.get d "normal" [])
+                         (->> (map get-public-suffix))
+                         list
+                         (doto (print "--normal list"))
+                         )
+                     (-> (.get d "wildcards" [])
+                         (get-wildcards-domains :proxies resolver
+                                                :timeout opts.timeout)
+                         await)))))
+  (logging.info "r:%s" r)
+  (->> r
        set
        (.join "\n")
        (opts.output.write)))
@@ -91,7 +97,10 @@
   (setv opts (parse-args [["-r" "--resolvers"
                            :type (argparse.FileType "r")
                            :help "包含dns解析服务器列表的文件"]
-
+                          ["-t" "--timeout"
+                           :type int
+                           :default 20
+                           :help "domain query timeout (default: %(default)s)"]
                           ["-d" "--domains"
                            :nargs "?"
                            :type (argparse.FileType "r")
@@ -106,6 +115,7 @@
                           ]
                          (rest args)
                          :description "过滤，查找合法的一级域名，可以使用*通配域名后缀(tld)"))
+
   (doto (asyncio.get-event-loop)
         (.run-until-complete (main opts))
         (.close))
