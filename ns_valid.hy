@@ -91,7 +91,7 @@
                           ["-t" "--timeout"
                            :type int
                            :default 60
-                           :help "domain query timeout"]
+                           :help "domain query timeout (default: %(default)s)"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
@@ -101,6 +101,9 @@
                           ]
                          (rest args)
                          :description "check domain is resolvable"))
-  (asyncio.run (main opts))
+  ;; 不使用async.run 兼容python 3.6
+  (doto (asyncio.get-event-loop)
+        (.run-until-complete (main opts))
+        (.close))
   (logging.info "exit.")
   )

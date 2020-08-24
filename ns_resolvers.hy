@@ -76,11 +76,11 @@
                           ["-r" "--reliability"
                            :type float-range
                            :default 1
-                           :help "dns服务器的可用性"]
+                           :help "dns服务器的可用性 (default: %(default)s)"]
                           ["-t" "--timeout"
                            :type int
                            :default 5
-                           :help "域名查询超时时间"]
+                           :help "域名查询超时时间 (default: %(default)s)"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
