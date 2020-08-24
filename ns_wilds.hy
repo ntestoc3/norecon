@@ -19,11 +19,9 @@
         [publicsuffix2 [get-public-suffix PublicSuffixList]]
         )
 
-(setv psl (PublicSuffixList))
-
 (defn/a get-domains
-  [domain-top-name &kwargs kwargs]
-  (-> (map #%(.format "{}.{}" domain-top-name %1) psl.tlds)
+  [domain-top-name &optional [tlds ["com" "cn" "org" "jp"]] &kwargs kwargs]
+  (-> (map #%(.format "{}.{}" domain-top-name %1) tlds)
       (filter-valid-domain #** kwargs)
       await))
 
@@ -50,6 +48,8 @@
                      (+ opts.domain
                         (read-valid-lines opts.domains))))
   (setv by-wild #%(.endswith %1 ".*"))
+  (setv tlds (-> (PublicSuffixList :psl-file opts.tld-file)
+                 (. tlds)))
   (setv r
         (-> domains
             (sorted :key by-wild)
@@ -69,8 +69,10 @@
                          (doto (print "--normal list"))
                          )
                      (-> (.get d "wildcards" [])
-                         (get-wildcards-domains :proxies resolver
-                                                :timeout opts.timeout)
+                         (get-wildcards-domains
+                           :tlds tlds
+                           :proxies resolver
+                           :timeout opts.timeout)
                          await)))))
   (logging.info "r:%s" r)
   (->> r
@@ -106,6 +108,10 @@
                            :type (argparse.FileType "r")
                            :default sys.stdin
                            :help "输入的域名，可包含*通配"]
+                          ["-tf" "--tld-file"
+                           :nargs "?"
+                           :type str
+                           :help "包含tld列表的文件"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
