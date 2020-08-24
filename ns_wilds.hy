@@ -45,7 +45,9 @@
   (setv resolver (when opts.resolvers
                    (read-valid-lines opts.resolvers)))
   (setv domains  (if (opts.domains.isatty)
-                     opts.domain
+                     (if opts.domain
+                         opts.domain
+                         (read-valid-lines opts.domains))
                      (+ opts.domain
                         (read-valid-lines opts.domains))))
   (setv by-wild #%(.endswith %1 ".*"))
@@ -89,7 +91,8 @@
   )
 (defmain [&rest args]
   (logging.basicConfig :level logging.INFO
-                       :handler (logging.StreamHandler sys.stderr)
+                       :handlers [(logging.FileHandler :filename "ns_wilds_app.log")
+                                  (logging.StreamHandler sys.stderr)]
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
