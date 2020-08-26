@@ -144,11 +144,11 @@
                                 :masscan-kwargs {"timeout" opts.timeout
                                                  "rate" opts.rate}
                                 :nmap-kwargs {"timeout" opts.timeout})))
-      (doto (->> (list ) (print "result:")))
+      list
       (as-> infos
             (for [r infos]
-              (json.dumps r (->> (of r "ip")
-                                 (str.format "{}.json")
-                                 (os.path.join opts.output-dir))))))
+              (json.dump r (->> (of r "ip")
+                                (str.format "{}.json")
+                                (os.path.join opts.output-dir))))))
   (logging.info "over!")
   )
