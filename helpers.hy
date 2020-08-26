@@ -27,7 +27,8 @@
             (last steps))))
 
 (defmacro some->> [head &rest args]
-  "Thread macro for last arg if not None"
+  "Thread macro for last arg if not None
+   `unpack-iterable`无法连接起来，#*的展开比较特殊"
   (setv g (gensym "some->>"))
   (setv steps (->> args
                    (map (fn [step]
@@ -147,6 +148,10 @@
   (->2> (filter identity ls)
         (reduce + [])
         list))
+
+(defn cat
+  [lls]
+  (concat #* lls))
 
 (comment
   ;; 重试3次，每次等待5秒

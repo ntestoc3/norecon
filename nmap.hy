@@ -92,14 +92,13 @@
 
 (defn service-scan
   [ip &optional [masscan-kwargs {}] [nmap-kwargs {}]]
-  (->> (masscan ip #** masscan-kwargs)
-       (map #%(nmap (of %1 "ip")
-                    :port (->> (of %1 "ports")
-                               (map #%(of %1 "port"))
-                               (str.join ","))
-                    #** nmap-kwargs))
-       unpack-iterable
-       concat))
+  (some->> (masscan ip #** masscan-kwargs)
+           (map #%(nmap (of %1 "ip")
+                        :port (->> (of %1 "ports")
+                                   (map #%(of %1 "port"))
+                                   (str.join ","))
+                        #** nmap-kwargs))
+           cat))
 
 (defmain [&rest args]
   (logging.basicConfig :level logging.INFO
@@ -110,8 +109,8 @@
 
   (setv opts (parse-args [["-t" "--timeout"
                            :type int
-                           :default 20
-                           :help "扫描超时时间(s) (default: %(default)s)"]
+                           :default 500
+                           :help "扫描超时时间(秒) (default: %(default)s)"]
                           ["-r" "--rate"
                            :type int
                            :default 10000
@@ -140,14 +139,16 @@
   (os.makedirs opts.output-dir :exist-ok True)
 
   (for [ip ips]
-    (-> (service-scan %1
-                      :masscan-kwargs {"timeout" opts.timeout
-                                       "rate" opts.rate}
-                      :nmap-kwargs {"timeout" opts.timeout})
-        (as-> infos
-              (for [r infos]
-                (json.dump r (->> (of r "ip")
-                                  (str.format "{}.json")
-                                  (os.path.join opts.output-dir)))))))
+    (some-> (service-scan ip
+                          :masscan-kwargs {"timeout" opts.timeout
+                                           "rate" opts.rate}
+                          :nmap-kwargs {"timeout" opts.timeout})
+            (as-> infos
+                  (for [r infos]
+                    (with [w (-> (of r "ip")
+                                 (->> (str.format "{}.json")
+                                      (os.path.join opts.output-dir))
+                                 (open :mode "w"))]
+                      (json.dump r w :indent 2 :sort-keys True))))))
   (logging.info "over!")
   )

@@ -131,8 +131,7 @@
                    :resolver resolver
                    :types opts.types
                    :timeout opts.timeout)
-      (json.dumps :indent 2 :sort-keys True)
-      (opts.output.write))
+      (json.dump opts.output :indent 2 :sort-keys True))
 
-  (logging.info "exit.")
+  (logging.info "over.")
   )
