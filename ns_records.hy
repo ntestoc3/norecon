@@ -52,20 +52,18 @@
        list))
 
 (defn get-records
-  [domains &optional resolver [timeout 30] types]
+  [domain &optional resolver [timeout 30] types]
+  "获取域名`domain`的查询记录"
+  (logging.info "get records for %s." domain)
   (setv rsv (if resolver
                 (doto (Resolver :configure False)
                       (setattr "nameservers" proxies))
                 (Resolver)))
   (setv rsv.lifetime timeout)
-  (->> domains
-       (map #%(get-domain-records rsv %1
-                                  #** (if types
-                                          {"types" types}
-                                          {})))
-       (filter identity)
-       unpack-iterable
-       concat))
+  (get-domain-records rsv domain
+                      #** (if types
+                              {"types" types}
+                              {})))
 
 (comment
   (setv rsv (Resolver))
@@ -110,11 +108,10 @@
                            :type int
                            :default 60
                            :help "记录查询超时时间 (default: %(default)s)"]
-                          ["-o" "--output"
-                           :nargs "?"
-                           :type (argparse.FileType "w")
-                           :default sys.stdout
-                           :help "输出文件"]
+                          ["-o" "--output-dir"
+                           :type str
+                           :default "./"
+                           :help "输出域名查询信息的目录，每个域名保存一个文件,默认为当前目录"]
                           ["domain" :nargs "*" :help "域名列表"]
                           ]
                          (rest args)
@@ -127,11 +124,17 @@
                          (read-valid-lines opts.domains))
                      (+ opts.domain
                         (read-valid-lines opts.domains))))
-  (-> (get-records domains
-                   :resolver resolver
-                   :types opts.types
-                   :timeout opts.timeout)
-      (json.dump opts.output :indent 2 :sort-keys True))
+
+  (os.makedirs opts.output-dir :exist-ok True)
+  (for [d domains]
+    (setv r (get-records d
+                         :resolver resolver
+                         :types opts.types
+                         :timeout opts.timeout))
+    (when (not (empty? r))
+      (with [w (-> (os.path.join opts.output-dir f"{d}.json")
+                   (open :mode "w"))]
+        (json.dump r w :indent 2 :sort-keys True))))
 
   (logging.info "over.")
   )
