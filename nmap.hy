@@ -69,7 +69,7 @@
                         ip]
                        :timeout timeout)
        (parse-nmap-xml out-fname)
-       (except [subprocee.TimeoutExpired]
+       (except [subprocess.TimeoutExpired]
          (logging.warn "masscan %s timeout." ip))
        (finally
          (os.unlink out-fname))))
@@ -111,7 +111,7 @@
   (setv opts (parse-args [["-t" "--timeout"
                            :type int
                            :default 20
-                           :help "扫描超时时间 (default: %(default)s)"]
+                           :help "扫描超时时间(s) (default: %(default)s)"]
                           ["-r" "--rate"
                            :type int
                            :default 10000
@@ -144,6 +144,7 @@
                                 :masscan-kwargs {"timeout" opts.timeout
                                                  "rate" opts.rate}
                                 :nmap-kwargs {"timeout" opts.timeout})))
+      (doto (->> (list ) (print "result:")))
       (as-> infos
             (for [r infos]
               (json.dumps r (->> (of r "ip")
