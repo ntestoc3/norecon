@@ -7,3 +7,6 @@ lxml
 ratelimit
 publicsuffix2
 dnspython
+python-whois
+ipwhois
+validators

@@ -56,7 +56,9 @@
   (setv resolver (when opts.resolvers
                    (read-valid-lines opts.resolvers)))
   (setv domains  (if (opts.domains.isatty)
-                     opts.domain
+                     (if opts.domain
+                         opts.domain
+                         (read-valid-lines opts.domains))
                      (+ opts.domain
                         (read-valid-lines opts.domains))))
   (->> (filter-valid-domain domains

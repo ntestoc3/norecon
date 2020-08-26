@@ -1,7 +1,5 @@
 #!/usr/bin/env hy
 
-(import sys)
-(sys.path.append ".")
 (require [hy.extra.anaphoric [*]]
          [helpers [*]]
          )
