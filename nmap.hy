@@ -139,16 +139,15 @@
 
   (os.makedirs opts.output-dir :exist-ok True)
 
-  (-> ips
-      (->> (map #%(service-scan %1
-                                :masscan-kwargs {"timeout" opts.timeout
-                                                 "rate" opts.rate}
-                                :nmap-kwargs {"timeout" opts.timeout})))
-      list
-      (as-> infos
-            (for [r infos]
-              (json.dump r (->> (of r "ip")
-                                (str.format "{}.json")
-                                (os.path.join opts.output-dir))))))
+  (for [ip ips]
+    (-> (service-scan %1
+                      :masscan-kwargs {"timeout" opts.timeout
+                                       "rate" opts.rate}
+                      :nmap-kwargs {"timeout" opts.timeout})
+        (as-> infos
+              (for [r infos]
+                (json.dump r (->> (of r "ip")
+                                  (str.format "{}.json")
+                                  (os.path.join opts.output-dir)))))))
   (logging.info "over!")
   )
