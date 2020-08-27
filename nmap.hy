@@ -85,7 +85,7 @@
                         ip]
                        :timeout timeout)
        (parse-nmap-xml out-fname)
-       (except [subprocee.TimeoutExpired]
+       (except [subprocess.TimeoutExpired]
          (logging.warn "nmap scan %s timeout." ip))
        (finally
          (os.unlink out-fname))))

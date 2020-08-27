@@ -135,13 +135,25 @@
               :backoff backoff
               :jitter jitter))))
 
-
 (defn read-valid-lines
   [f]
+  "按行读取文件`f`的数据，忽略空行"
   (->> (.read f)
        (.splitlines)
        (filter (comp not empty?))
        list))
+
+(defn read-nargs-or-input-file
+  [nargs input-file]
+  "从narg或输入文件读取参数
+   如果输入文件是stdin,并且narg参数为空，则从stdin读取输入
+  "
+  (if (input-file.isatty)
+      (if nargs
+          nargs
+          (read-valid-lines input-file))
+      (+ nargs
+         (read-valid-lines input-file))))
 
 (defn concat
   [&rest ls]
