@@ -196,7 +196,7 @@
 
     (for [ip ips]
       (when (-> (ipaddress.ip-address ip)
-                (.is-global)
+                (. is-global)
                 not)
         (logging.warn "ip scan 跳过非公开地址:%s." ip)
         (continue))
