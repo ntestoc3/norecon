@@ -277,7 +277,7 @@
 
 (defn domain?
   [domain]
-  (validators.domain target))
+  (validators.domain domain))
 
 (defn root-domain?
   [domain]
