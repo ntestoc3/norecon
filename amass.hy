@@ -34,7 +34,7 @@
                                 #* opts
                                 "-d" domain]
                                :encoding "utf-8"
-                               :capture-output True))
+                               :stdout subprocess.PIPE))
        (if (zero? r.returncode)
            (parse-out r.stdout)
            (logging.warning "amass enum domain %s error: %s" domain r.stderr))
