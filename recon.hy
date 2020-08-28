@@ -62,7 +62,7 @@
   (setv data-path (os.path.join (tempfile.gettempdir) "ip_qqwry.dat"))
   (when (not (and (os.path.exists data-path)
                   (< (-> (time-modify-delta data-path)
-                         (.days))
+                         (. days))
                      30)))
     (updateQQwry data-path))
   (ip-loc.load-file data-path))
@@ -80,7 +80,7 @@
   (setv data-path (os.path.join (tempfile.gettempdir) "resolvers"))
   (when (not (and (os.path.exists data-path)
                   (< (-> (time-modify-delta data-path)
-                         (.days))
+                         (. days))
                      1)))
     (subprocess.run ["./ns_resolvers.hy"
                      "-o" data-path
