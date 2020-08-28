@@ -21,6 +21,7 @@
         [event-bus [EventBus]]
         [screen [aquatone]]
         [publicsuffix2 [get-public-suffix]]
+        [glob [glob]]
         )
 
 (setv bus (EventBus))
@@ -169,6 +170,26 @@
                      "-session-out-name" f"{host}.json"
                      ])))
 
+(with-decorator (bus.on "new:screenshot:html")
+  (defn screen-shot-html
+    [opts]
+    (logging.info "generate screenshot html.")
+    (setv out-dir (os.path.join opts.project-dir "screen"))
+    (os.makedirs out-dir :exist-ok True)
+
+    (setv session-name f"{opts.screen-session}.json")
+    (setv sessions (->> (glob f"{out-dir}/*.json")
+                        (filter #%(not (= session-name
+                                          (os.path.basename %1))))
+                        (str.join ",")))
+    (unless (empty? sessions)
+      (aquatone "\n"
+                :out-path out-dir
+                :timeout opts.screenshot-timeout
+                :opts ["-session-out-name" session-name
+                       "-report-out-name" f"{opts.screen-session}.html"
+                       "-combine-sessions" sessions]))))
+
 (defn cdn-ip?
   [ip opts]
   "检测是否为cdn ip"
@@ -289,8 +310,9 @@
   (setv opts (adict {"project_dir" "hackerone"
                      "resolvers" "./resolv"
                      "amass_timeout" 1
-                     "ip-scan-timeout" 500
-                     "masscan-rate" 1000
+                     "ip_scan_timeout" 500
+                     "masscan_rate" 1000
+                     "screen_session" "screen"
                      "screenshot_timeout" 1000
                      "scan_cdn_ip" False}))
 
@@ -363,6 +385,10 @@
                            :type bool
                            :default False
                            :help "是否强制重新扫描(如果为False,则扫描过的项目不再重新扫描) (default: %(default)s)"]
+                          ["-ss" "--screen-session"
+                           :type str
+                           :default "screen"
+                           :help "输出屏幕快照的session文件名 (default: %(default)s)"]
                           ["-p" "--project-dir"
                            :type str
                            :required True
@@ -413,6 +439,8 @@
 
       [True
        (logging.warning "not valid target: %s" t)]))
+
+  (bus.emit "new:screenshot:html" opts)
 
   (logging.info "over!")
   )
