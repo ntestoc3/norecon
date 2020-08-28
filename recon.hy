@@ -99,8 +99,14 @@
     (setv out-dir (os.path.join opts.project-dir "whois"))
     (os.makedirs out-dir :exist-ok True)
 
+    (setv out-path f"{(os.path.join out-dir target)}.json")
+    (when (and (not opts.overwrite)
+               (os.path.exists out-path))
+      (logging.info "whois: %s already taken!" target)
+      (return))
+
     (subprocess.run ["./nt_whois.hy"
-                     "-o" f"{(os.path.join out-dir target)}.json"
+                     "-o" out-path
                      target]
                     :encoding "utf-8")))
 
@@ -111,12 +117,19 @@
     (setv out-dir (os.path.join opts.project-dir "record"))
     (os.makedirs out-dir :exist-ok True)
 
+    (when (not opts.overwrite)
+      (setv scan-domains (lfor d domains
+                               :if (-> (os.path.join out-dir f"{d}.json")
+                                       os.path.exists
+                                       not)
+                               d)))
+
     (subprocess.run ["./ns_records.hy"
                      #* (if opts.resolvers
                             ["-r" opts.resolvers]
                             [])
                      "-o" out-dir
-                     #* domains
+                     #* scan-domains
                      ]
                     :encoding "utf-8")
 
@@ -139,13 +152,19 @@
     (setv out-dir (os.path.join opts.project-dir "screen"))
     (os.makedirs out-dir :exist-ok True)
 
+    (setv out-path f"{(os.path.join out-dir host)}.json")
+    (when (and (os.path.exists out-path)
+               (not opts.overwrite))
+      (logging.info "screenshot: %s already taken!" host)
+      (return))
+
     (aquatone host
               :out-path out-dir
               :ports ports
               :timeout opts.screenshot-timeout
               :opts ["-report=false"
                      "-similar=false"
-                     "-session-out-name" f"{h1}.json"
+                     "-session-out-name" f"{host}.json"
                      ])))
 
 (defn cdn-ip?
@@ -165,11 +184,27 @@
     (setv out-dir (os.path.join opts.project-dir "ip"))
     (os.makedirs out-dir :exist-ok True)
 
+    (defn send-screenshot
+      [ip]
+      (setv info (read-ip ip opts))
+      (when info
+        (bus.emit "new:screenshot" ip opts
+                  :ports (some->> (.get info "ports")
+                                  (map #%(.get %1 port))
+                                  (str.join ",")))))
+
     (for [ip ips]
       (when (-> (ipaddress.ip-address ip)
                 (.is-global)
                 not)
         (logging.warn "ip scan 跳过非公开地址:%s." ip)
+        (continue))
+
+      (setv out-path f"{(os.path.join out-dir ip)}.json")
+      (when (and (not opts.overwrite)
+                 (os.path.exists out-path))
+        (logging.info "ip scan %s already scaned!" ip)
+        (send-screenshot ip)
         (continue))
 
       (bus.emit "new:whois" ip opts)
@@ -184,12 +219,7 @@
                          ]
                         :encoding "utf-8")
 
-        (setv info (read-ip ip opts))
-        (when info
-          (bus.emit "new:screenshot" ip opts
-                    :ports (some->> (.get info "ports")
-                                    (map #%(.get %1 port))
-                                    (str.join ","))))))))
+        (send-screenshot ip)))))
 
 (with-decorator (bus.on "new:domain")
   (defn domain
@@ -200,6 +230,15 @@
     (setv out-dir (os.path.join opts.project-dir "domain"))
     (os.makedirs out-dir :exist-ok True)
 
+
+    (setv out-path f"{(os.path.join out-dir root-domain)}.json")
+    (when (and (not opts.overwrite)
+               (os.path.exists out-path))
+      (logging.info "top level domain scan %s already scaned!" root-domain)
+      (with [pf (open out-path)]
+        (->2> (read-valid-lines pf)
+              (bus.emit "new:record-query" opts)))
+      (return))
 
     (setv [_ amass-out] (tempfile.mkstemp ".txt" f"amass_{root-domain}_"))
     (subprocess.run ["./amass.hy"
@@ -312,6 +351,10 @@
                            :type bool
                            :default False
                            :help "是否对cdn ip进行端口扫描 (default: %(default)s)"]
+                          ["--overwrite"
+                           :type bool
+                           :default False
+                           :help "是否强制重新扫描(如果为False,则扫描过的项目不再重新扫描) (default: %(default)s)"]
                           ["-p" "--project-dir"
                            :type str
                            :required True
