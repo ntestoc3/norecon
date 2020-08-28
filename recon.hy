@@ -124,14 +124,15 @@
                                        not)
                                d)))
 
-    (subprocess.run ["./ns_records.hy"
-                     #* (if opts.resolvers
-                            ["-r" opts.resolvers]
-                            [])
-                     "-o" out-dir
-                     #* scan-domains
-                     ]
-                    :encoding "utf-8")
+    (unless (empty? scan-domains)
+      (subprocess.run ["./ns_records.hy"
+                       #* (if opts.resolvers
+                              ["-r" opts.resolvers]
+                              [])
+                       "-o" out-dir
+                       #* scan-domains
+                       ]
+                      :encoding "utf-8"))
 
     (setv ips [])
     (for [d domains]
