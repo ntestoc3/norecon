@@ -231,14 +231,16 @@
     (setv out-dir (os.path.join opts.project-dir "domain"))
     (os.makedirs out-dir :exist-ok True)
 
-
     (setv out-path f"{(os.path.join out-dir root-domain)}.json")
+    (defn send-record-query
+      []
+      (with [pf (open out-path)]
+        (->2> (read-valid-lines pf)
+              (bus.emit "new:record-query" opts))))
     (when (and (not opts.overwrite)
                (os.path.exists out-path))
       (logging.info "top level domain scan %s already scaned!" root-domain)
-      (with [pf (open out-path)]
-        (->2> (read-valid-lines pf)
-              (bus.emit "new:record-query" opts)))
+      (send-record-query)
       (return))
 
     (setv [_ amass-out] (tempfile.mkstemp ".txt" f"amass_{root-domain}_"))
@@ -254,7 +256,7 @@
                      root-domain]
                     :encoding "utf-8")
 
-    (with [outf (open f"{(os.path.join out-dir root-domain)}.json" "w")
+    (with [outf (open out-path "w")
            r1 (open amass-out)
            r2 (open subds-out)]
       (-> (concat (read-valid-lines r1)
@@ -262,12 +264,13 @@
           (->> (map #%(-> (str.lower %1)
                           (str.strip "."))))
           set
-          (doto (->2> (bus.emit "new:record-query" opts)))
           (->> (str.join "\n"))
           (outf.write)))
 
     (os.unlink amass-out)
-    (os.unlink subds-out)))
+    (os.unlink subds-out)
+
+    (send-record-query)))
 
 (comment
 
