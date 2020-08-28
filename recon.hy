@@ -74,14 +74,15 @@
 
 ;;; gen resolvers
 (defn gen-resolvers
-  [&optional [timeout 5] [reliablity 0.8]]
+  [&optional [force-update False] [timeout 5] [reliablity 0.8]]
   "生成resolvers,返回resolver文件路径"
   (logging.info "gen resolvers")
   (setv data-path (os.path.join (tempfile.gettempdir) "resolvers"))
-  (when (not (and (os.path.exists data-path)
-                  (< (-> (time-modify-delta data-path)
-                         (. days))
-                     1)))
+  (when (or force-update
+            (not (and (os.path.exists data-path)
+                      (< (-> (time-modify-delta data-path)
+                             (. days))
+                         1))))
     (subprocess.run ["./ns_resolvers.hy"
                      "-o" data-path
                      "-r" (str reliablity)
@@ -336,7 +337,7 @@
          (map str)
          list))
 
-  (for [t target]
+  (for [t targets]
     (cond
       [(domain? t)
 
