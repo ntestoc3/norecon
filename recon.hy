@@ -391,13 +391,11 @@
   (for [t targets]
     (cond
       [(domain? t)
-
        (if (root-domain? t)
            (bus.emit "new:domain" t opts)
            (bus.emit "new:record-query" t opts))]
 
       [(valid-ip-range? t)
-
        (as-> (str.split t "-") [start end]
              (->2> (ipaddress.summarize-address-range
                      (ipaddress.ip-address start)
@@ -407,9 +405,11 @@
                    (bus.emit "new:ips" opts)))]
 
       [(valid-cidr? t)
-
        (->2> (network->ips t)
              (bus.emit "new:ips" opts))]
+
+      [(validators.ipv4 t)
+       (bus.emit "new:ips" [t] opts)]
 
       [True
        (logging.warning "not valid target: %s" t)]))
