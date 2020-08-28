@@ -232,8 +232,8 @@
 
       (bus.emit "new:whois" ip opts)
 
-      (when (not (and (cdn-ip? ip opts)
-                      opts.scan-cdn-ip))
+      (when (or (not (cdn-ip? ip opts))
+                opts.scan-cdn-ip)
         (subprocess.run ["./nmap.hy"
                          "-t" (str opts.ip-scan-timeout)
                          "-r" (str opts.masscan-rate)
@@ -313,6 +313,7 @@
                      "ip_scan_timeout" 500
                      "masscan_rate" 1000
                      "screen_session" "screen"
+                     "overwrite" False
                      "screenshot_timeout" 1000
                      "scan_cdn_ip" False}))
 
