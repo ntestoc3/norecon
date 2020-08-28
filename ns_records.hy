@@ -17,7 +17,6 @@
         [helpers [*]]
         [dns.resolver [Resolver]]
         [dns.rdatatype :as rtype]
-        asyncio
         )
 
 (with-decorator (retry Exception :delay 5 :backoff 4 :max-delay 120)
@@ -57,7 +56,7 @@
   (logging.info "get records for %s." domain)
   (setv rsv (if resolver
                 (doto (Resolver :configure False)
-                      (setattr "nameservers" proxies))
+                      (setattr "nameservers" resolver))
                 (Resolver)))
   (setv rsv.lifetime timeout)
   (get-domain-records rsv domain
@@ -107,7 +106,7 @@
                           ["-e" "--timeout"
                            :type int
                            :default 60
-                           :help "记录查询超时时间 (default: %(default)s)"]
+                           :help "记录查询超时时间(秒) (default: %(default)s)"]
                           ["-o" "--output-dir"
                            :type str
                            :default "./"

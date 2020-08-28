@@ -63,6 +63,15 @@
             g
             (last steps))))
 
+(defn get-in [m ks &optional [not-found None]]
+  "深度获取dict"
+  (setv r m)
+  (for [k ks]
+    (setv r (.get r k))
+    (when (none? r)
+      (return not-found)))
+  r)
+
 (defmacro timev [&rest body]
   (setv start-time (gensym "start-time"))
   (setv end-time (gensym "end-time"))

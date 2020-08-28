@@ -58,9 +58,7 @@
   (-> (BeautifulSoup body "lxml")
       (.select-one "table#result_table")
       parse-table-rows
-      (->> (map #%(->> %1
-                       (zip ["domain" "ip" "clould-flare"])
-                       dict)))
+      (->> (map first))
       list))
 
 (defn get-subds
@@ -88,34 +86,31 @@
 
 (defmain [&rest args]
   (logging.basicConfig :level logging.INFO
-                       ;; :filename "app.log"
-                       ;; :filemode "w"
+                       :handlers [(logging.FileHandler :filename "subds_app.log")
+                                  (logging.StreamHandler sys.stderr)]
                        :style "{"
                        :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
 
   (setv opts (parse-args [["-d" "--domains" :type (argparse.FileType "r")
                            :default sys.stdin
                            :help "包含域名列表的文件"]
-                          ["-o" "--output" :type str
-                           :default "out.csv"
-                           :help "output file path"]
+                          ["-o" "--output"
+                           :nargs "?"
+                           :type (argparse.FileType "w")
+                           :default sys.stdout
+                           :help "输出文件名"]
                           ["domain" :nargs "*" :help "要查找的域名"]]
                          (rest args)
                          :description "查找域名对应的所有子域名"))
 
-  (setv domains  (if (opts.domains.isatty)
-                     (if opts.domain
-                         opts.domain
-                         (read-valid-lines opts.domains))
-                     (concat opts.domain
-                             (read-valid-lines opts.domains))))
+  (setv domains (->> (read-nargs-or-input-file opts.domain opts.domains)
+                     (map get-public-suffix)
+                     set))
+
   (for [d domains]
-    (some->> (get-public-suffix d)
-             (get-subds)
-             (filter #%(-> (of %1 "ip")
-                           (!= "none")))
-             list
-             (save-data opts.output))
+    (some->> (get-subds d)
+             (str.join "\n")
+             (opts.output.write))
     (time.sleep 2))
 
   (logging.info "over!")

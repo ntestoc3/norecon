@@ -5,6 +5,7 @@
 #    pip-compile dev-requirements.in
 #
 astroid==2.4.2            # via pylint
+attrdict==2.0.1           # via -r dev-requirements.in
 backcall==0.2.0           # via ipython
 decorator==4.4.2          # via ipython, traitlets
 ipython-genutils==0.2.0   # via traitlets
@@ -21,7 +22,7 @@ prompt-toolkit==3.0.5     # via ipython
 ptyprocess==0.6.0         # via pexpect
 pygments==2.6.1           # via ipython
 pylint==2.5.3             # via -r dev-requirements.in
-six==1.15.0               # via astroid, traitlets
+six==1.15.0               # via astroid, attrdict, traitlets
 toml==0.10.1              # via pylint
 toolz==0.10.0             # via jedhy
 traitlets==4.3.3          # via ipython

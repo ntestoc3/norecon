@@ -17,11 +17,11 @@
   [hosts &optional
    [threads 2]
    [out-path "./"]
-   [ports "medium"]
-   [scan-timeout 20]
-   [http-timeout 30]
-   [screenshot-timeout 180]
-   [timeout 1800]
+   [ports None]
+   [scan-timeout 10]
+   [http-timeout 20]
+   [screenshot-timeout 60]
+   [timeout 120]
    [opts []]]
   "`opts` 传递给aquatone的额外参数"
   (logging.info "aquatone hosts %s ports:%s" hosts ports)
@@ -30,7 +30,9 @@
                         "-out" out-path
                         "-http-timeout" (str (* 1000 http-timeout))
                         "-threads" (str threads)
-                        "-ports" ports
+                        #* (if ports
+                               ["-ports" ports]
+                               [])
                         "-scan-timeout" (str (* 1000 scan-timeout))
                         "-screenshot-timeout" (str (* 1000 screenshot-timeout))
                         #* opts]

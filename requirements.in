@@ -10,3 +10,5 @@ dnspython
 python-whois
 ipwhois
 validators
+event-bus
+qqwry-py3
