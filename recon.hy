@@ -219,8 +219,8 @@
            r2 (open subds-out)]
       (-> (concat (read-valid-lines r1)
                   (read-valid-lines r2))
-          (map #%(-> (str.lower %1)
-                     (str.strip ".")))
+          (->> (map #%(-> (str.lower %1)
+                          (str.strip "."))))
           set
           (doto (->2> (bus.emit "new:record-query" opts)))
           (->> (str.join "\n"))
