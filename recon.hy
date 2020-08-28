@@ -125,6 +125,7 @@
                                d)))
 
     (unless (empty? scan-domains)
+      (logging.info "record query, real scan: %s" scan-domains)
       (subprocess.run ["./ns_records.hy"
                        #* (if opts.resolvers
                               ["-r" opts.resolvers]
@@ -191,7 +192,7 @@
       (when info
         (bus.emit "new:screenshot" ip opts
                   :ports (some->> (.get info "ports")
-                                  (map #%(.get %1 port))
+                                  (map #%(.get %1 "port"))
                                   (str.join ",")))))
 
     (for [ip ips]
@@ -243,6 +244,7 @@
       (send-record-query)
       (return))
 
+    ;; amass查询
     (setv [_ amass-out] (tempfile.mkstemp ".txt" f"amass_{root-domain}_"))
     (subprocess.run ["./amass.hy"
                      "-t" (str opts.amass-timeout)
@@ -250,12 +252,14 @@
                      root-domain]
                     :encoding "utf-8")
 
+    ;; 使用网页查询
     (setv [_ subds-out] (tempfile.mkstemp ".txt" f"subds_{root-domain}_"))
     (subprocess.run ["./subds.hy"
                      "-o" subds-out
                      root-domain]
                     :encoding "utf-8")
 
+    ;; 保存结果
     (with [outf (open out-path "w")
            r1 (open amass-out)
            r2 (open subds-out)]
