@@ -19,12 +19,6 @@
   {% for s in screen %}
 ## {{ s['target'] }}
 
-### ip地址
-
-    {% for ip in s['addrs'] -%}
-      - [[ip/{{ip}}]]
-    {% endfor %}
-
 ### http头
 
 | 名字 | 值 |
@@ -37,6 +31,12 @@
       {% else -%}
         | {{ h['name'] }} | {{ h['value'] }} |
       {% endif %}
+    {% endfor %}
+
+### ip地址
+
+    {% for ip in s['addrs'] -%}
+      - [[ip/{{ip}}]]
     {% endfor %}
 
 <center> <h5>{{ s['pageTitle'] }} </h5> {{ s['status'] }} </center>
