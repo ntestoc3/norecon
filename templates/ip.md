@@ -36,7 +36,7 @@
 ### ip地址
 
     {% for ip in s['addrs'] -%}
-      - [[ip/{{ip}}]]
+      - [[{{ip}}]]
     {% endfor %}
 
 <center> <h5>{{ s['pageTitle'] }} </h5> {{ s['status'] }} </center>

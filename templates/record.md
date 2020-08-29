@@ -9,7 +9,7 @@
   | {{ d['canonical-name'] }} | {{ d['type'] }} | {{ d['expiration'] }} |
   {%- for l in d['result'] %}
     {%- if d['type'] == 'A' %}
-      <li> [[ip/{{ l }}]] </li>
+      <li> [[{{ l }}]] </li>
     {%- else %}
       <li> {{ l }} </li>
     {%- endif %}
@@ -39,7 +39,7 @@
 ### ip地址
 
     {% for ip in s['addrs'] -%}
-      - [[ip/{{ip}}]]
+      - [[{{ip}}]]
     {% endfor %}
 
 <center> <h5>{{ s['pageTitle'] }} </h5> {{ s['status'] }} </center>

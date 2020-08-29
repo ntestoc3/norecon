@@ -2,9 +2,9 @@
 # Whois信息
 
 {% if data['domain_name'] %}
-[[domain/{{ target }}]]
+[[{{ target }}]]
 {% else %}
-[[ip/{{ target }}]]
+[[{{ target }}]]
 {% endif %}
 
 ```json

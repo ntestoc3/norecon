@@ -39,7 +39,7 @@
         (w.write))))
 
 (defn render-project-notes
-  [project-dir item-dir template get-arg-fn]
+  [project-dir item-dir template get-arg-fn &optional [postfix ""]]
   "`get-arg-fn` 生成传递给模板参数的函数:接受参数为target(当前要生成的项目名)"
   (setv save-path (os.path.join project-dir item-dir))
   (for [f (glob (os.path.join project-dir item-dir "*.json"))]
@@ -47,13 +47,14 @@
                      (os.path.splitext)
                      first))
     (render->file template (get-arg-fn target)
-                  (os.path.join save-path f"{target}.md"))))
+                  (os.path.join save-path f"{target}{postfix}.md"))))
 
 (defn render-whois
   [project-dir]
   (render-project-notes :project-dir project-dir
                         :item-dir "whois"
                         :template "whois.md"
+                        :postfix "_whois"
                         :get-arg-fn (fn [target]
                                       {"data" (read-whois target project-dir)
                                        "target" target})))
@@ -63,6 +64,7 @@
   (render-project-notes :project-dir project-dir
                         :item-dir "domain"
                         :template "domain.md"
+                        :postfix "_domain"
                         :get-arg-fn (fn [target]
                                       {"data" (read-domain target project-dir)
                                        "target" target})))
@@ -79,7 +81,7 @@
                             (as-> (.get d "screenshotPath") spath
                                   (when spath
                                     (-> (os.path.join project-dir "screen" spath)
-                                        (os.path.relpath project-dir)
+                                        (os.path.relpath (os.path.join project-dir "ip"))
                                         (->> (setv (of d "screenshotPath")))))))
                       d))))
 
@@ -115,7 +117,6 @@
                          (rest args)
                          :description "生成项目报告"))
 
-  (print opts)
   (doto opts.project-dir
         (render-whois)
         (render-domain)
