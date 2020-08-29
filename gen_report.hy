@@ -41,8 +41,7 @@
 (defn render-project-notes
   [project-dir item-dir template get-arg-fn]
   "`get-arg-fn` 生成传递给模板参数的函数:接受参数为target(当前要生成的项目名)"
-  (setv save-path (os.path.join project-dir "notes" item-dir))
-  (os.makedirs save-path :exist-ok True)
+  (setv save-path (os.path.join project-dir item-dir))
   (for [f (glob (os.path.join project-dir item-dir "*.json"))]
     (setv target (-> (os.path.basename f)
                      (os.path.splitext)
@@ -70,8 +69,6 @@
 
 (defn gen-screen-info
   [target project-dir]
-  (setv resource-dir (os.path.join project-dir "notes" "resources"))
-  (os.makedirs resource-dir :exist-ok True)
   (some-> (read-screen-session target project-dir)
           (.get "pages")
           (.items)
@@ -81,9 +78,8 @@
                             (setv (of d "target") k)
                             (as-> (.get d "screenshotPath") spath
                                   (when spath
-                                    (-> (copy (os.path.join project-dir "screen" spath)
-                                              resource-dir)
-                                        (os.path.relpath (os.path.join project-dir "notes" "ip"))
+                                    (-> (os.path.join project-dir "screen" spath)
+                                        (os.path.relpath project-dir)
                                         (->> (setv (of d "screenshotPath")))))))
                       d))))
 
@@ -107,3 +103,24 @@
                                       {"data" (read-record target project-dir)
                                        "screen" (gen-screen-info target project-dir)
                                        "target" target})))
+
+(defmain [&rest args]
+  (logging.basicConfig :level logging.INFO
+                       :handlers [(logging.FileHandler :filename "gen_report_app.log")
+                                  (logging.StreamHandler sys.stderr)]
+                       :style "{"
+                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
+
+  (setv opts (parse-args [["project_dir"  :help "要生成报告的项目根目录"]]
+                         (rest args)
+                         :description "生成项目报告"))
+
+  (print opts)
+  (doto opts.project-dir
+        (render-whois)
+        (render-domain)
+        (render-record)
+        (render-ip))
+
+  (logging.info "over!")
+  )

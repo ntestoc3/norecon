@@ -209,9 +209,8 @@
     (setv out-path f"{(os.path.join out-dir root-domain)}.json")
     (defn send-record-query
       []
-      (with [pf (open out-path)]
-        (->2> (read-valid-lines pf)
-              (bus.emit "new:record-query" opts))))
+      (some->2> (read-domain root-domain opts.project-dir)
+                (bus.emit "new:record-query" opts)))
     (when (and (not opts.overwrite)
                (os.path.exists out-path))
       (logging.info "top level domain scan %s already scaned!" root-domain)

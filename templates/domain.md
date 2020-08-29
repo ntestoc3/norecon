@@ -5,6 +5,6 @@
 
 | 域名　 |
 | ----  |
-{%- for d in data %}
+{% for d in data -%}
 | [[record/{{ d }}]] |
-{%- endfor %}
+{% endfor %}
