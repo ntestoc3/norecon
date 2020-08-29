@@ -20,7 +20,9 @@ future==0.18.2            # via python-whois
 hy==0.19.0                # via -r requirements.in
 idna==2.10                # via requests
 ipwhois==1.1.0            # via -r requirements.in
+jinja2==2.11.2            # via -r requirements.in
 lxml==4.5.2               # via -r requirements.in
+markupsafe==1.1.1         # via jinja2
 publicsuffix2==2.20191221  # via -r requirements.in
 py==1.9.0                 # via retry
 python-whois==0.7.3       # via -r requirements.in

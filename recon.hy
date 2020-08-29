@@ -16,62 +16,15 @@
         ipaddress
 
         [datetime [datetime]]
-        [qqwry [updateQQwry QQwry]]
         [helpers [*]]
         [event-bus [EventBus]]
         [screen [aquatone]]
         [publicsuffix2 [get-public-suffix]]
         [glob [glob]]
+        [project [*]]
         )
 
 (setv bus (EventBus))
-
-(defn read-project-file
-  [opts &rest paths]
-  (setv fpath (os.path.join opts.project-dir #* paths))
-  (when (os.path.exists fpath)
-    (with [f (open fpath)]
-      (json.load f))))
-
-(defn read-ip
-  [ip opts]
-  (read-project-file opts "ip" f"{ip}.json"))
-
-(defn read-whois
-  [host opts]
-  (read-project-file opts "whois" f"{host}.json"))
-
-(defn read-domain
-  [domain opts]
-  (read-project-file opts "domain" f"{domain}.json"))
-
-(defn read-record
-  [domain opts]
-  (read-project-file opts "record" f"{domain}.json"))
-
-;;;; ip位置查询
-(defn time-modify-delta
-  [f]
-  (->> (os.path.getmtime f)
-       (datetime.fromtimestamp)
-       (- (datetime.now))))
-
-(setv ip-loc (QQwry))
-
-(defn load-qqwry
-  []
-  (setv data-path (os.path.join (tempfile.gettempdir) "ip_qqwry.dat"))
-  (when (not (and (os.path.exists data-path)
-                  (< (-> (time-modify-delta data-path)
-                         (. days))
-                     30)))
-    (updateQQwry data-path))
-  (ip-loc.load-file data-path))
-
-(defn get-location
-  [ip]
-  (->> (ip-loc.lookup ip)
-       (str.join "-")))
 
 ;;; gen resolvers
 (defn gen-resolvers
@@ -138,7 +91,7 @@
 
     (setv ips [])
     (for [d domains]
-      (setv rs (read-record d opts))
+      (setv rs (read-record d opts.project-dir))
       (when rs
         (bus.emit "new:screenshot" d opts)
         (->> rs
@@ -193,7 +146,7 @@
 (defn cdn-ip?
   [ip opts]
   "检测是否为cdn ip"
-  (setv net-name (-> (read-whois ip opts)
+  (setv net-name (-> (read-whois ip opts.project-dir)
                      (get-in ["network" "name"])))
   (in net-name ["CLOUDFLARENET"
                 "AKAMAI"
@@ -209,7 +162,7 @@
 
     (defn send-screenshot
       [ip]
-      (setv info (read-ip ip opts))
+      (setv info (read-ip ip opts.project-dir))
       (when info
         (bus.emit "new:screenshot" ip opts
                   :ports (some->> (.get info "ports")
@@ -289,8 +242,8 @@
           (->> (map #%(-> (str.lower %1)
                           (str.strip "."))))
           set
-          (->> (str.join "\n"))
-          (outf.write)))
+          list
+          (json.dump outf :indent 2 :sort-keys True)))
 
     (os.unlink amass-out)
     (os.unlink subds-out)
@@ -302,7 +255,7 @@
   (defn get-ip-net-name
     [ip opts]
     (bus.emit "new:whois" ip opts)
-    (-> (read-whois ip opts)
+    (-> (read-whois ip opts.project-dir)
         (get-in ["network" "name"])))
 
   (import [attrdict [AttrDict :as adict]])

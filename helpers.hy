@@ -174,6 +174,14 @@
   [lls]
   (concat #* lls))
 
+(import os [datetime [datetime]])
+(defn time-modify-delta
+  [f]
+  "文件`f`最后一次更新距离现在的时间"
+  (->> (os.path.getmtime f)
+       (datetime.fromtimestamp)
+       (- (datetime.now))))
+
 (comment
   ;; 重试3次，每次等待5秒
   (setv pf (with-retry-limit print :tries 3 :calls 2 :delay 5))
