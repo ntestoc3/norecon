@@ -5,7 +5,7 @@
   
   生成markdown格式的报告，可以使用[Obsidian](https://obsidian.md/)或vscode的[markdown notes插件](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes)打开,借助双向链接功能，方便查看．
   
-# 使用方法
+# 安装使用
 
 ## 安装依赖程序
 
@@ -28,6 +28,16 @@
   ```shell
   pip install norecon
   ```
+
+## 使用ansible批量安装
+　　不喜欢手动安装的话，可以使用ansible进行自动化安装,使用这个[playbooks](https://github.com/ntestoc3/playbooks):
+
+   git clone 项目到本地,配置好ansible,然后执行
+```shell
+ansible-playbook norecon.yml
+```
+   即可在指定的主机上安装好依赖程序及norecon包
+
   
 ## 使用方法
   norecon -p 项目保存目录　域名或ip 
@@ -48,6 +58,12 @@
   noreport -v yahoo
   ```
   
-## 报告截图
+# 报告截图
   使用Obsidian显示报告结果
   ![报告结果](https://github.com/ntestoc3/norecon/raw/master/resources/report_screen.gif)
+
+# 声明
+  本程序仅供于学习交流，请使用者遵守《中华人民共和国网络安全法》，
+  勿将此工具用于非授权的测试，
+  程序开发者不负任何连带法律责任。
+

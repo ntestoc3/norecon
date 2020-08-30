@@ -11,7 +11,7 @@ with open(path.join(here, "requirements.in"), encoding='utf-8') as f:
     requirements = f.read().splitlines()
 
 setup(name='norecon',
-      version=0.4,
+      version=0.6,
       description='auto recon tools for domain, whois, service scan and screenshot.',
       author='ntestoc3',
       author_email='ntoooooon@outlook.com',
