@@ -103,6 +103,10 @@
                            :type rdtypes
                            :default "a,aaaa,mx,ns,txt,cname,soa"
                            :help "要查询的record类型,','分割 (default: %(default)s)"]
+                          ["--save-empty"
+                           :type bool
+                           :default False
+                           :help "是否保存空结果 (default: %(default)s)"]
                           ["-e" "--timeout"
                            :type int
                            :default 60
@@ -130,7 +134,8 @@
                          :resolver resolver
                          :types opts.types
                          :timeout opts.timeout))
-    (when (not (empty? r))
+    (when (or opts.save-empty
+              (not (empty? r)))
       (with [w (-> (os.path.join opts.output-dir f"{d}.json")
                    (open :mode "w"))]
         (json.dump r w :indent 2 :sort-keys True))))

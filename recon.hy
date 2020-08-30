@@ -84,6 +84,7 @@
                        #* (if opts.resolvers
                               ["-r" opts.resolvers]
                               [])
+                       "--save-empty" "True"
                        "-o" out-dir
                        #* scan-domains
                        ]
