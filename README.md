@@ -48,3 +48,6 @@
   noreport -v yahoo
   ```
   
+## 报告截图
+  使用Obsidian显示报告结果
+  ![报告结果](./resources/report_screen.gif)
