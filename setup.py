@@ -11,13 +11,14 @@ with open(path.join(here, "requirements.in"), encoding='utf-8') as f:
     requirements = f.read().splitlines()
 
 setup(name='norecon',
-      version=0.2,
+      version=0.3,
       description='auto recon tools for domain, whois, service scan and screenshot.',
       author='ntestoc3',
       author_email='ntoooooon@outlook.com',
       url='https://github.com/ntestoc3/norecon',
       keywords='recon hacking domain scan whois',
       long_description=long_description,
+      long_description_content_type="text/markdown",
       license="Expat",
 
       include_package_data=True,
