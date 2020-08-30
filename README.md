@@ -32,12 +32,17 @@
 ## 使用方法
   norecon -p 项目保存目录　域名或ip 
   
-  比如测试yahoo
+  比如测试yahoo,支持一级域名或子域名
   ```shell
-  norecon -v -p yahoo yahoo.com
+  norecon -v -p yahoo yahoo.com engadget.com login.aol.com
   ```
   如果中途中断，继续执行以上命令，会自动跳过已经扫描的部分．可使用--overwrite强制重新扫描．
   
+  也可以在项目执行完毕后再添加ip或域名,或只进行ip扫描(支持cidr子网或ip范围):
+  ```shell
+  norecon -v -p yahoo 202.165.107.00/28 119.161.10.15-119.161.10.40 106.10.236.40
+  ```
+
   扫描完成后，生成报告:
   ```shell
   noreport -v yahoo

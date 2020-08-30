@@ -1,13 +1,16 @@
 
 (import json
+        logging
         os)
 
 (defn read-project-file
   [project-dir &rest paths]
   (setv fpath (os.path.join project-dir #* paths))
   (when (os.path.exists fpath)
-    (with [f (open fpath)]
-      (json.load f))))
+    (try (with [f (open fpath)]
+           (json.load f))
+         (except [e Exception]
+           (logging.warn "load project json file %s error: %s." fpath e)))))
 
 (defn read-ip
   [ip project-dir]
