@@ -35,19 +35,19 @@
 (defmainf [&rest args]
   (setv opts (parse-args [["-if" "--subdomains" :type str
                            :required True
-                           :help "subdomains info file (subds output file)"]
+                           :help "主机文件"]
                           ["-pf" "--path-file" :type str
                            :required True
-                           :help "path file to scan"]
+                           :help "参数文件"]
                           ["-of" "--output" :type str
                            :default "scaned-path.txt"
-                           :help "scan result output file path, default `scaned-path.txt`"]
+                           :help "输出查询结果　 (default: %(default)s)"]
                           ["-v" "--verbose"
                            :action "count"
                            :default 0]
                           ]
                          (rest args)
-                         :description "find subdomains for root domain"))
+                         :description "查询所有(https://主机/参数)的合法请求"))
 
   (set-logging-level opts.verbose)
 

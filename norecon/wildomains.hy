@@ -39,7 +39,7 @@
       unpack-iterable
       concat))
 
-(defn/a main
+(defn/a async-main
   [opts]
   (setv resolver (when opts.resolvers
                    (read-valid-lines opts.resolvers)))
@@ -96,7 +96,7 @@
                           ["-t" "--timeout"
                            :type int
                            :default 20
-                           :help "domain query timeout (default: %(default)s)"]
+                           :help "域名查询超时时间(秒) (default: %(default)s)"]
                           ["-d" "--domains"
                            :nargs "?"
                            :type (argparse.FileType "r")
@@ -121,7 +121,7 @@
   (set-logging-level opts.verbose)
 
   (doto (asyncio.get-event-loop)
-        (.run-until-complete (main opts))
+        (.run-until-complete (async-main opts))
         (.close))
   (logging.info "over!")
   )

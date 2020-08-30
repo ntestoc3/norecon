@@ -77,6 +77,10 @@
                            :type int
                            :default 5
                            :help "域名查询超时时间 (default: %(default)s)"]
+                          ["-d" "--domain"
+                           :type str
+                           :default "www.bing.com"
+                           :help "用于测试解析的域名 (default: %(default)s)"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
@@ -94,7 +98,9 @@
                        :min-reliability opts.reliability)
       (->2> (pmap (fn [ns]
                     (+ [ns]
-                       (timev (resolve ns :timeout opts.timeout))))
+                       (timev (resolve ns
+                                       :target opts.domain
+                                       :timeout opts.timeout))))
                   :proc 30)
             (filter (comp identity last)))
       (sorted :key second)

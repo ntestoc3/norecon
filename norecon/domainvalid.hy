@@ -30,7 +30,7 @@
                      dns.resolver.NoAnswer
                      ]]
            None
-           #_(logging.error "error valid domain? %s" e)))))
+           #_(logging.error "valid domain error: %s" e)))))
 
 (defn/a filter-valid-domain
   [ds &optional proxies [timeout 60]]
@@ -51,7 +51,7 @@
          (print "errors:" e)
          #_(logging.exception "filter valid domain"))))
 
-(defn/a main
+(defn/a async-main
   [opts]
   (setv resolver (when opts.resolvers
                    (read-valid-lines opts.resolvers)))
@@ -71,33 +71,33 @@
 (defmainf [&rest args]
   (setv opts (parse-args [["-r" "--resolvers"
                            :type (argparse.FileType "r")
-                           :help "resolvers file"]
+                           :help "包含域名解析服务器的文件"]
                           ["-d" "--domains"
                            :nargs "?"
                            :type (argparse.FileType "r")
                            :default sys.stdin
-                           :help "domains file to check"]
+                           :help "包含要检测的域名的文件"]
                           ["-t" "--timeout"
                            :type int
                            :default 60
-                           :help "domain query timeout (default: %(default)s)"]
+                           :help "域名查询超时时间(秒) (default: %(default)s)"]
                           ["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")
                            :default sys.stdout
-                           :help "output valid domain"]
+                           :help "输出文件，保存有效的域名"]
                           ["-v" "--verbose"
                            :action "count"
                            :default 0]
-                          ["domain" :nargs "*" :help "domain to check"]
+                          ["domain" :nargs "*" :help "要查询的域名"]
                           ]
                          (rest args)
-                         :description "check domain is resolvable"))
+                         :description "检查域名是否可以解析，仅针对一级域名，即有ns记录的域名"))
   (set-logging-level opts.verbose)
 
   ;; 不使用async.run 兼容python 3.6
   (doto (asyncio.get-event-loop)
-        (.run-until-complete (main opts))
+        (.run-until-complete (async-main opts))
         (.close))
   (logging.info "exit.")
   )
