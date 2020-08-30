@@ -35,13 +35,7 @@
          [True
           (logging.warn "not a valid domain or ip: %s" target)])))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "nt_whois_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")

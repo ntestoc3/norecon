@@ -68,11 +68,7 @@
        (.join "\n")
        (opts.output.write)))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-r" "--resolvers"
                            :type (argparse.FileType "r")
                            :help "resolvers file"]

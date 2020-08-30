@@ -86,11 +86,7 @@
              r
              (raise (argparse.ArgumentTypeError f"{r} not valid Rdatatype"))))))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-r" "--resolvers"
                            :type (argparse.FileType "r")
                            :help "包含dns解析服务器列表的文件,如果为空，则使用系统的dns解析服务器"]

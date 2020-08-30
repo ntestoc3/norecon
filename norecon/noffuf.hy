@@ -32,13 +32,7 @@
            (.write w))
       (.write w "\n"))))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       ;; :filename "app.log"
-                       ;; :filemode "w"
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-if" "--subdomains" :type str
                            :required True
                            :help "subdomains info file (subds output file)"]

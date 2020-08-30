@@ -42,13 +42,7 @@
          (logging.warn "amass enum domain %s timeout." domain))))
 
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "amass_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-o" "--output"
                            :nargs "?"
                            :type (argparse.FileType "w")

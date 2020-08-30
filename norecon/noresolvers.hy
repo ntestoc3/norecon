@@ -65,11 +65,7 @@
     )
   r)
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-6" "--ipv6"
                            :action "store_true"
                            :help "是否使用ipv6,默认不使用"]

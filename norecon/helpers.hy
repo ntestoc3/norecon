@@ -102,6 +102,29 @@
 
 (require [hy.extra.anaphoric [*]])
 
+(defmacro defmainf [args &rest body]
+  "生成main函数，并在if __main__时调用"
+  (setv retval (gensym)
+        mainf (gensym "main_")
+        restval (gensym))
+  `(do
+     (defn ~mainf [~@(or args `[&rest ~restval])]
+       ~@body)
+
+     (defn main []
+       (import sys logging helpers)
+       (logging.basicConfig :level logging.INFO
+                            :handlers [(logging.FileHandler :filename f"app_{(helpers.fstem --file--)}.log")
+                                       (logging.StreamHandler sys.stderr)]
+                            :style "{"
+                            :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
+       (~mainf #* sys.argv))
+
+     (when (= --name-- "__main__")
+      (setv ~retval (main))
+      (if (integer? ~retval)
+          (sys.exit ~retval)))))
+
 (defn select-keys
   [d ks]
   (->> (.items d)
@@ -181,6 +204,13 @@
   (->> (os.path.getmtime f)
        (datetime.fromtimestamp)
        (- (datetime.now))))
+
+(defn fstem
+  [f]
+  "返回文件`f`不带路径和后缀的名字"
+  (-> (os.path.basename f)
+      (os.path.splitext)
+      first))
 
 (comment
   ;; 重试3次，每次等待5秒

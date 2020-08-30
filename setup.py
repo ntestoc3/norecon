@@ -17,6 +17,8 @@ setup(name='norecon',
       author_email='ntoooooon@outlook.com',
       url='https://github.com/ntestoc3/norecon',
       keywords='recon hacking domain scan whois',
+      long_description=long_description,
+      license="Expat",
       
       packages=["norecon"],
       package_data={

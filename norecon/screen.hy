@@ -51,13 +51,7 @@
             (raise (argparse.ArgumentTypeError f"{p} not valid ports")))))
   p)
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "screenshot_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-o" "--output-dir"
                            :type str
                            :default "./"

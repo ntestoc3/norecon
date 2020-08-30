@@ -43,9 +43,7 @@
   "`get-arg-fn` 生成传递给模板参数的函数:接受参数为target(当前要生成的项目名)"
   (setv save-path (os.path.join project-dir item-dir))
   (for [f (glob (os.path.join project-dir item-dir "*.json"))]
-    (setv target (-> (os.path.basename f)
-                     (os.path.splitext)
-                     first))
+    (setv target (fstem f))
     (render->file template (get-arg-fn target)
                   (os.path.join save-path f"{target}{postfix}.md"))))
 
@@ -106,13 +104,7 @@
                                        "screen" (gen-screen-info target project-dir)
                                        "target" target})))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "gen_report_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["project_dir"  :help "要生成报告的项目根目录"]]
                          (rest args)
                          :description "生成项目报告"))

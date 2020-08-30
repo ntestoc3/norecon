@@ -102,13 +102,7 @@
                         #** nmap-kwargs))
            cat))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "nmap_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-t" "--timeout"
                            :type int
                            :default 500

@@ -89,13 +89,7 @@
                 list))
 
   )
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "ns_wilds_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-r" "--resolvers"
                            :type (argparse.FileType "r")
                            :help "包含dns解析服务器列表的文件"]

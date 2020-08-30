@@ -312,13 +312,7 @@
   (= domain
      (get-public-suffix domain)))
 
-(defn main []
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "recon_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["--amass-timeout"
                            :type int
                            :default 5
@@ -358,7 +352,7 @@
                            :help "输入的目标"]
                           ["target" :nargs "*" :help "要扫描的目标，可以是域名或ip地址"]
                           ]
-                         (rest sys.argv)
+                         (rest args)
                          :description "针对目标进行recon"))
 
   (setv targets (read-nargs-or-input-file opts.target opts.targets))
@@ -402,6 +396,3 @@
 
   (logging.info "over!")
   )
-
-(defmain [&rest args]
-  (main))

@@ -84,13 +84,7 @@
                                    list))
           (.writerows data)))))
 
-(defmain [&rest args]
-  (logging.basicConfig :level logging.INFO
-                       :handlers [(logging.FileHandler :filename "subds_app.log")
-                                  (logging.StreamHandler sys.stderr)]
-                       :style "{"
-                       :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-
+(defmainf [&rest args]
   (setv opts (parse-args [["-d" "--domains" :type (argparse.FileType "r")
                            :default sys.stdin
                            :help "包含域名列表的文件"]
