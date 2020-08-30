@@ -11,7 +11,7 @@ with open(path.join(here, "requirements.in"), encoding='utf-8') as f:
     requirements = f.read().splitlines()
 
 setup(name='norecon',
-      version=0.1,
+      version=0.2,
       description='auto recon tools for domain, whois, service scan and screenshot.',
       author='ntestoc3',
       author_email='ntoooooon@outlook.com',
@@ -19,7 +19,8 @@ setup(name='norecon',
       keywords='recon hacking domain scan whois',
       long_description=long_description,
       license="Expat",
-      
+
+      include_package_data=True,
       packages=["norecon"],
       package_data={
           'norecon': ['*'],
@@ -27,7 +28,7 @@ setup(name='norecon',
 
       entry_points={  # Optional
           'console_scripts': [
-              'norecon=norecon.recon:main',
+              'norecon=norecon.norecon:main',
               'domainvalid=norecon.domainvalid:main',
               'noamass=norecon.noamass:main',
               'noffuf=norecon.noffuf:main',

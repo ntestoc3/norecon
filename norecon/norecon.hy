@@ -22,6 +22,7 @@
         [publicsuffix2 [get-public-suffix]]
         [glob [glob]]
         [project [*]]
+        [shutil [which]]
         )
 
 (setv bus (EventBus))
@@ -33,10 +34,6 @@
       amass-bin "noamass"
       subfinder-bin "nosubsfinder"
       )
-
-(defn check-install
-  []
-  )
 
 ;;; gen resolvers
 (defn gen-resolvers
@@ -324,6 +321,14 @@
   (= domain
      (get-public-suffix domain)))
 
+(defn check-bin
+  [binary]
+  (as-> (which binary) p
+        (if p
+            (do (logging.info "%s :%s" binary p)
+                p)
+            (raise (FileNotFoundError binary)))))
+
 (defmainf [&rest args]
   (setv opts (parse-args [["--amass-timeout"
                            :type int
@@ -370,6 +375,18 @@
                          (rest args)
                          :description "针对目标进行recon"))
   (set-logging-level opts.verbose)
+
+  (for [x ["amass"
+           "aquatone"
+           "masscan"
+           "nmap"
+           resolvers-bin
+           whois-bin
+           records-bin
+           nmap-bin
+           amass-bin
+           subfinder-bin]]
+    (check-bin x))
 
   (setv targets (read-nargs-or-input-file opts.target opts.targets))
 

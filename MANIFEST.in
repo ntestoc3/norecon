@@ -1,1 +1,3 @@
 recursive-include norecon *
+recursive-include templates *
+global-exclude *.py[cod]
