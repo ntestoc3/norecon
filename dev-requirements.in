@@ -2,3 +2,6 @@ jedhy
 pylint
 ipython
 attrdict
+twine
+wheel
+
