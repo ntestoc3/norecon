@@ -50,4 +50,4 @@
   
 ## 报告截图
   使用Obsidian显示报告结果
-  ![报告结果](./resources/report_screen.gif)
+  ![报告结果](https://github.com/ntestoc3/norecon/raw/master/resources/report_screen.gif)
