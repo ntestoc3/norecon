@@ -26,7 +26,7 @@
    (cond [(or (validators.ipv4 target)
               (validators.ipv6 target))
           (-> (IPWhois target)
-              (.lookup-rdap))]
+              (.lookup-rdap :asn-methods ["dns" "whois" "http"]))]
 
          [(validators.domain target)
           (-> (get-public-suffix target)
