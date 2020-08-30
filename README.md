@@ -62,7 +62,7 @@ ansible-playbook norecon.yml
   使用Obsidian显示报告结果
   ![报告结果](https://github.com/ntestoc3/norecon/raw/master/resources/report_screen.gif)
 
-# 附带的单独小工具
+# 附带的单独工具
 
 ## noresolvers
   域名解析服务器查询工具，根据可用性和超时时间获取域名解析服务器列表．按响应时间排序．
@@ -77,31 +77,31 @@ noresolvers -r 0.9 -t 3 -o resolve
 
   可以指定resolvers文件，即noresolvers输出的域名解析服务器文件．
 
-## noamass
-  调用amass进行子域名收集．
-  
-## noffuf
-  调用ffuf进行路径爆破
-  
-## nonmap
-  调用masscan和nmap进行服务扫描
-  
 ## norecords
   获取一个域名的所有解析记录
-  
-## noscreen
-  调用aquatone进行屏幕快照
-  
-## nosubsfinder
-  从网页查询子域名
-  
-## nowhois
-  whois查询域名或ip
   
 ## wildomains
   获取一个通配域名的所有一级域名，比如baidu.*,会查找所有可能的tld后缀，找到还在使用的一级域名．
 
   可以使用tld文件指定要查找的后缀，如果不指定，会查找大量tld,速度比较慢．
+
+## nosubsfinder
+  从网页查询子域名
+ 
+## noamass
+  调用amass查询子域名
+ 
+## nowhois
+  whois查询域名或ip
+ 
+## nonmap
+  调用masscan和nmap进行服务扫描
+  
+## noffuf
+  调用ffuf进行路径爆破
+  
+## noscreen
+  调用aquatone进行屏幕快照
   
 # 声明
   本程序仅供于学习交流，请使用者遵守《中华人民共和国网络安全法》，
