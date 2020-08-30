@@ -186,6 +186,10 @@
 
       (bus.emit "new:whois" ip opts)
 
+      ;; 空json文件进行占位，没有扫描结果的ip不再扫描
+      (with [w (open out-path "w")]
+        (json.dump None w))
+
       (when (or (not (cdn-ip? ip opts))
                 opts.scan-cdn-ip)
         (subprocess.run ["./nmap.hy"

@@ -36,28 +36,30 @@
 (defn parse-nmap-xml
   [fp]
   "解析nmap输出的xml格式"
-  (-> (lfor host (-> (xml.parse fp)
-                     (.getroot)
-                     (.iter "host"))
-            {"ip" (-> (host.find "address")
-                      (.get "addr"))
-             "host" (some-> (host.find "hostnames/hostname")
-                            (.get "name"))
-             "ports" (->> (host.findall "ports/port")
-                          (map parse-service)
-                          list)})
-      (sorted :key #%(of %1 "ip"))
-      (group-by :key #%(of %1 "ip"))
-      (->2> (lfor [ip datas]
-                  ;; 注意迭代时iterator只能读取一次，然后数据为空
-                  (as-> (list datas) datas
-                        {"ip" ip
-                         "host" (some-> (first datas)
-                                        (.get "host"))
-                         "ports" (->> datas
-                                      (map #%(.get %1 "ports"))
-                                      unpack-iterable
-                                      concat)})))))
+  (try (-> (lfor host (-> (xml.parse fp)
+                          (.getroot)
+                          (.iter "host"))
+                 {"ip" (-> (host.find "address")
+                           (.get "addr"))
+                  "host" (some-> (host.find "hostnames/hostname")
+                                 (.get "name"))
+                  "ports" (->> (host.findall "ports/port")
+                               (map parse-service)
+                               list)})
+           (sorted :key #%(of %1 "ip"))
+           (group-by :key #%(of %1 "ip"))
+           (->2> (lfor [ip datas]
+                       ;; 注意迭代时iterator只能读取一次，然后数据为空
+                       (as-> (list datas) datas
+                             {"ip" ip
+                              "host" (some-> (first datas)
+                                             (.get "host"))
+                              "ports" (->> datas
+                                           (map #%(.get %1 "ports"))
+                                           unpack-iterable
+                                           concat)}))))
+       (except [xml.ParseError]
+         (logging.info "xml parse invalid xml file: %s" fp))))
 
 (defn masscan
   [ip &optional [port "0-65535"] [rate 10000] [timeout 300] [opts []]]
@@ -72,7 +74,7 @@
        (except [subprocess.TimeoutExpired]
          (logging.warn "masscan %s timeout." ip))
        (finally
-         (os.unlink out-fname))))
+         #_(os.unlink out-fname))))
 
 (defn nmap
   [ip &optional [port "0-65535"] [timeout 300] [opts []]]
