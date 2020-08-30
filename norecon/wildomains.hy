@@ -11,7 +11,7 @@
         time
         asyncio
 
-        [ns-valid [filter-valid-domain]]
+        [domainvalid [filter-valid-domain]]
         [retry [retry]]
         [helpers [*]]
         [publicsuffix2 [get-public-suffix PublicSuffixList]]
@@ -111,10 +111,14 @@
                            :type (argparse.FileType "w")
                            :default sys.stdout
                            :help "输出合法的一级域名"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["domain" :nargs "*" :help "要检测的域名"]
                           ]
                          (rest args)
                          :description "过滤，查找合法的一级域名，可以使用*通配域名后缀(tld)"))
+  (set-logging-level opts.verbose)
 
   (doto (asyncio.get-event-loop)
         (.run-until-complete (main opts))

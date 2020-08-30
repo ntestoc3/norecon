@@ -41,10 +41,15 @@
                            :type (argparse.FileType "w")
                            :default sys.stdout
                            :help "输出文件名"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["target" :help "whois要查询的域名或ip"]
                           ]
                          (rest args)
                          :description "whois查询域名或ip,然后输出json"))
+
+  (set-logging-level opts.verbose)
 
   (-> (nt-whois opts.target)
       (json.dump opts.output :indent 2 :sort-keys True :default str))

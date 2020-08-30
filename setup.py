@@ -28,7 +28,17 @@ setup(name='norecon',
       entry_points={  # Optional
           'console_scripts': [
               'norecon=norecon.recon:main',
-              'gen_report=norecon.gen_report:main',
+              'domainvalid=norecon.domainvalid:main',
+              'noamass=norecon.noamass:main',
+              'noffuf=norecon.noffuf:main',
+              'nonmap=norecon.nonmap:main',
+              'norecords=norecon.norecords:main',
+              'noreport=norecon.noreport:main',
+              'noresolvers=norecon.noresolvers:main',
+              'noscreen=norecon.noscreen:main',
+              'nosubsfinder=norecon.nosubsfinder:main',
+              'nowhois=norecon.nowhois:main',
+              'wildomains=norecon.wildomains:main',
           ],
       },
 

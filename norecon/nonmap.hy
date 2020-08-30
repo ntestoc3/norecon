@@ -120,10 +120,15 @@
                            :type str
                            :default "./"
                            :help "输出ip服务详情的目录，每个ip保存为一个文件,默认为当前目录"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["ip" :nargs "*" :help "要扫描的ip"]
                           ]
                          (rest args)
                          :description "扫描指定ip的服务"))
+
+  (set-logging-level opts.verbose)
 
   (setv ips  (if (opts.ips.isatty)
                  (if opts.ip

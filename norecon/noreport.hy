@@ -105,9 +105,14 @@
                                        "target" target})))
 
 (defmainf [&rest args]
-  (setv opts (parse-args [["project_dir"  :help "要生成报告的项目根目录"]]
+  (setv opts (parse-args [["-v" "--verbose"
+                           :action "count"
+                           :default 0]
+                          ["project_dir"  :help "要生成报告的项目根目录"]]
                          (rest args)
                          :description "生成项目报告"))
+
+  (set-logging-level opts.verbose)
 
   (doto opts.project-dir
         (render-whois)

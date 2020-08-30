@@ -18,13 +18,25 @@
         [datetime [datetime]]
         [helpers [*]]
         [event-bus [EventBus]]
-        [screen [aquatone]]
+        [noscreen [aquatone]]
         [publicsuffix2 [get-public-suffix]]
         [glob [glob]]
         [project [*]]
         )
 
 (setv bus (EventBus))
+
+(setv resolvers-bin "noresolvers"
+      whois-bin "nowhois"
+      records-bin "norecords"
+      nmap-bin "nonmap"
+      amass-bin "noamass"
+      subfinder-bin "nosubsfinder"
+      )
+
+(defn check-install
+  []
+  )
 
 ;;; gen resolvers
 (defn gen-resolvers
@@ -37,7 +49,7 @@
                       (< (-> (time-modify-delta data-path)
                              (. days))
                          1))))
-    (subprocess.run ["./ns_resolvers.hy"
+    (subprocess.run [resolvers-bin
                      "-o" data-path
                      "-r" (str reliablity)
                      "-t" (str timeout)]
@@ -59,7 +71,7 @@
       (logging.info "whois: %s already taken!" target)
       (return))
 
-    (subprocess.run ["./nt_whois.hy"
+    (subprocess.run [whois-bin
                      "-o" out-path
                      target]
                     :encoding "utf-8")))
@@ -80,7 +92,7 @@
 
     (unless (empty? scan-domains)
       (logging.info "record query, real scan: %s" scan-domains)
-      (subprocess.run ["./ns_records.hy"
+      (subprocess.run [records-bin
                        #* (if opts.resolvers
                               ["-r" opts.resolvers]
                               [])
@@ -192,7 +204,7 @@
 
       (when (or (not (cdn-ip? ip opts))
                 opts.scan-cdn-ip)
-        (subprocess.run ["./nmap.hy"
+        (subprocess.run [nmap-bin
                          "-t" (str opts.ip-scan-timeout)
                          "-r" (str opts.masscan-rate)
                          "-d" out-dir
@@ -224,7 +236,7 @@
 
     ;; amass查询
     (setv [_ amass-out] (tempfile.mkstemp ".txt" f"amass_{root-domain}_"))
-    (subprocess.run ["./amass.hy"
+    (subprocess.run [amass-bin
                      "-t" (str opts.amass-timeout)
                      "-o" amass-out
                      root-domain]
@@ -232,7 +244,7 @@
 
     ;; 使用网页查询
     (setv [_ subds-out] (tempfile.mkstemp ".txt" f"subds_{root-domain}_"))
-    (subprocess.run ["./subds.hy"
+    (subprocess.run [subfinder-bin
                      "-o" subds-out
                      root-domain]
                     :encoding "utf-8")
@@ -350,10 +362,14 @@
                            :type (argparse.FileType "r")
                            :default sys.stdin
                            :help "输入的目标"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["target" :nargs "*" :help "要扫描的目标，可以是域名或ip地址"]
                           ]
                          (rest args)
                          :description "针对目标进行recon"))
+  (set-logging-level opts.verbose)
 
   (setv targets (read-nargs-or-input-file opts.target opts.targets))
 

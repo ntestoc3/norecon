@@ -52,9 +52,14 @@
                            :type int
                            :default 30
                            :help "查询执行时间(分钟) (default: %(default)s)"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["target" :help "目标"]]
                          (rest args)
                          :description "使用amass查询子域名"))
+
+  (set-logging-level opts.verbose)
 
   (->> (amass opts.target :timeout opts.timeout)
        (str.join "\n")

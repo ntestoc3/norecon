@@ -82,9 +82,14 @@
                            :type (argparse.FileType "w")
                            :default sys.stdout
                            :help "输出dns查询服务器列表"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ]
                          (rest args)
                          :description "获取dns查询服务器列表，并按访问速度排序"))
+  (set-logging-level opts.verbose)
+
   (-> (get-nameservers :ipv6 opts.ipv6
                        :min-reliability opts.reliability)
       (->2> (pmap (fn [ns]

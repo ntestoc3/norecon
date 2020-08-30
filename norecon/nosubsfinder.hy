@@ -93,9 +93,14 @@
                            :type (argparse.FileType "w")
                            :default sys.stdout
                            :help "输出文件名"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["domain" :nargs "*" :help "要查找的域名"]]
                          (rest args)
                          :description "查找域名对应的所有子域名"))
+
+  (set-logging-level opts.verbose)
 
   (setv domains (->> (read-nargs-or-input-file opts.domain opts.domains)
                      (map get-public-suffix)

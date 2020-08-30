@@ -125,6 +125,16 @@
       (if (integer? ~retval)
           (sys.exit ~retval)))))
 
+(defn set-logging-level
+  [n]
+  (import logging)
+  (setv levels [logging.WARNING logging.INFO logging.DEBUG])
+  (-> (logging.getLogger)
+      (.setLevel (->> (len levels)
+                      (dec)
+                      (min n)
+                      (of levels)))))
+
 (defn select-keys
   [d ks]
   (->> (.items d)

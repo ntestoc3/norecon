@@ -111,10 +111,15 @@
                            :type str
                            :default "./"
                            :help "输出域名查询信息的目录，每个域名保存一个文件,默认为当前目录"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["domain" :nargs "*" :help "域名列表"]
                           ]
                          (rest args)
                          :description "检测域名的所有查询记录"))
+  (set-logging-level opts.verbose)
+
   (setv resolver (when opts.resolvers
                    (read-valid-lines opts.resolvers)))
   (setv domains  (if (opts.domains.isatty)

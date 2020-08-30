@@ -42,9 +42,14 @@
                           ["-of" "--output" :type str
                            :default "scaned-path.txt"
                            :help "scan result output file path, default `scaned-path.txt`"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ]
                          (rest args)
                          :description "find subdomains for root domain"))
+
+  (set-logging-level opts.verbose)
 
   (setv tmp-domain-file (os.path.join (tempfile.mkdtemp)
                                       "domains.txt"))

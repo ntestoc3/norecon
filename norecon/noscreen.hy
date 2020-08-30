@@ -90,10 +90,15 @@
                            :default "medium"
                            :help "扫描检测的端口 (default: %(default)s)"
                            ]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["host" :nargs "*" :help "要检测的主机"]
                           ]
                          (rest args)
                          :description "进行屏幕快照并输出"))
+
+  (set-logging-level opts.verbose)
 
   (setv hosts (->> (read-nargs-or-input-file opts.host opts.hosts)
                    (str.join " ")))

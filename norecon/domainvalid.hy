@@ -86,10 +86,15 @@
                            :type (argparse.FileType "w")
                            :default sys.stdout
                            :help "output valid domain"]
+                          ["-v" "--verbose"
+                           :action "count"
+                           :default 0]
                           ["domain" :nargs "*" :help "domain to check"]
                           ]
                          (rest args)
                          :description "check domain is resolvable"))
+  (set-logging-level opts.verbose)
+
   ;; 不使用async.run 兼容python 3.6
   (doto (asyncio.get-event-loop)
         (.run-until-complete (main opts))
