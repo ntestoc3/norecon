@@ -10,6 +10,7 @@
         argparse
         json
         pprint
+        validators
         subprocess
         tempfile
 
@@ -130,16 +131,15 @@
 
   (set-logging-level opts.verbose)
 
-  (setv ips  (if (opts.ips.isatty)
-                 (if opts.ip
-                     opts.ip
-                     (read-valid-lines opts.ips))
-                 (+ opts.ip
-                    (read-valid-lines opts.ips))))
+  (setv ips  (read-nargs-or-input-file opts.ip opts.ips))
 
   (os.makedirs opts.output-dir :exist-ok True)
 
   (for [ip ips]
+    (unless (validators.ipv4 ip)
+      (logging.warning "不是合法的ipv4地址:%s" ip)
+      (continue))
+
     (some-> (service-scan ip
                           :masscan-kwargs {"timeout" opts.timeout
                                            "rate" opts.rate}

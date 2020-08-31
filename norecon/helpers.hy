@@ -106,19 +106,27 @@
   "生成main函数，并在if __main__时调用"
   (setv retval (gensym)
         mainf (gensym "main_")
-        restval (gensym))
+        restval (gensym)
+        e (gensym))
   `(do
      (defn ~mainf [~@(or args `[&rest ~restval])]
        ~@body)
 
      (defn main []
        (import sys logging helpers)
-       (logging.basicConfig :level logging.INFO
+       (logging.basicConfig :level logging.WARNING
                             :handlers [(logging.FileHandler :filename f"app_{(helpers.fstem --file--)}.log")
                                        (logging.StreamHandler sys.stderr)]
                             :style "{"
                             :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
-       (~mainf #* sys.argv))
+       (try
+         (~mainf #* sys.argv)
+         (sys.stdout.flush)
+         (except [~e Exception]
+           (logging.exception "main")
+           (sys.stdout.flush)
+           ;; 异常返回-1
+           -1)))
 
      (when (= --name-- "__main__")
       (setv ~retval (main))

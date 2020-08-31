@@ -103,6 +103,28 @@ noresolvers -r 0.9 -t 3 -o resolve
 ## noscreen
   调用aquatone进行屏幕快照
   
+## nowx
+  发送微信消息,借助[微信消息推送服务](http://wxpusher.zjiecode.com/docs/)发送消息．
+  可以实现命令执行完毕后发送微信消息进行通知．
+  
+  第一次运行输入nowx执行，根据提示进行配置:
+```shell
+➜  sub-domains git:(master) ✗ nowx
+未发现token配置
+访问 http://wxpusher.zjiecode.com/admin/app/list 创建token.
+输入申请的APP_TOKEN:[粘贴页面申请的token]
+
+网页打开下面的网址，微信扫码关注以接收消息：
+https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=xxxxxx
+```
+
+  然后可以在执行时带上消息参数发送消息:
+```shell
+nowhois bing.com  ; nowx whois执行完毕,返回代码:$?
+```  
+　　上面的命令在nowhois执行完毕后，nowx发送微信消息，通知完成及nowhois的返回代码．
+　　注意两个命令之间使用;分割．
+
 # 声明
   本程序仅供于学习交流，请使用者遵守《中华人民共和国网络安全法》，
   勿将此工具用于非授权的测试，
