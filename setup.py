@@ -11,7 +11,7 @@ with open(path.join(here, "requirements.in"), encoding='utf-8') as f:
     requirements = f.read().splitlines()
 
 setup(name='norecon',
-      version=0.801,
+      version=0.802,
       description='auto recon tools for domain, whois, service scan and screenshot.',
       author='ntestoc3',
       author_email='ntoooooon@outlook.com',
@@ -25,6 +25,9 @@ setup(name='norecon',
       packages=["norecon"],
       package_data={
           'norecon': ['*'],
+      },
+      exclude_package_data={
+          'norecon': ['*.log'],
       },
 
       entry_points={  # Optional
