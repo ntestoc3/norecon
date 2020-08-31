@@ -23,6 +23,7 @@
         [glob [glob]]
         [project [*]]
         [shutil [which]]
+        [fnmatch [fnmatch]]
         )
 
 (setv bus (EventBus))
@@ -80,12 +81,14 @@
     (setv out-dir (os.path.join opts.project-dir "record"))
     (os.makedirs out-dir :exist-ok True)
 
-    (when (not opts.overwrite)
-      (setv scan-domains (lfor d domains
-                               :if (-> (os.path.join out-dir f"{d}.json")
-                                       os.path.exists
-                                       not)
-                               d)))
+    (setv scan-domains
+          (lfor d domains
+                ;; 没有扫描过或进行覆盖
+                :if (or (not (os.path.exists out-path))
+                        opts.overwrite)
+                ;; 没有被排除
+                :if (not (exclude? d))
+                d))
 
     (unless (empty? scan-domains)
       (logging.info "record query, real scan: %s" scan-domains)
@@ -180,17 +183,30 @@
                                   (str.join ",")))))
 
     (for [ip ips]
+      ;; 检测私有地址
       (when (-> (ipaddress.ip-address ip)
                 (. is-global)
                 not)
         (logging.warn "ip scan 跳过非公开地址:%s." ip)
         (continue))
 
+      ;; 检测是否已经扫描过
       (setv out-path f"{(os.path.join out-dir ip)}.json")
       (when (and (not opts.overwrite)
                  (os.path.exists out-path))
         (logging.info "ip scan %s already scaned!" ip)
         (send-screenshot ip)
+        (continue))
+
+      ;; 检测是否排除
+      (when (exclude? ip)
+        (logging.info "ip scan %s exclude!" ip)
+        (continue))
+
+      ;; 检测cdn ip
+      (when (and (cdn-ip? ip opts)
+                 (not opts.scan-cdn-ip))
+        (logging.info "ip scan %s skip cdn ip." ip)
         (continue))
 
       (bus.emit "new:whois" ip opts)
@@ -199,17 +215,15 @@
       (with [w (open out-path "w")]
         (json.dump None w))
 
-      (when (or (not (cdn-ip? ip opts))
-                opts.scan-cdn-ip)
-        (subprocess.run [nmap-bin
-                         "-t" (str opts.ip-scan-timeout)
-                         "-r" (str opts.masscan-rate)
-                         "-d" out-dir
-                         ip
-                         ]
-                        :encoding "utf-8")
+      (subprocess.run [nmap-bin
+                       "-t" (str opts.ip-scan-timeout)
+                       "-r" (str opts.masscan-rate)
+                       "-d" out-dir
+                       ip
+                       ]
+                      :encoding "utf-8")
 
-        (send-screenshot ip)))))
+      (send-screenshot ip))))
 
 (with-decorator (bus.on "new:domain")
   (defn domain
@@ -329,10 +343,19 @@
                 p)
             (raise (FileNotFoundError binary)))))
 
+(setv exclude-hosts [])
+
+(defn exclude? [host]
+  "是否被排除"
+  (for [e exclude-hosts]
+    (when (fnmatch host e)
+      (return True)))
+  return False)
+
 (defmainf [&rest args]
   (setv opts (parse-args [["--amass-timeout"
                            :type int
-                           :default 5
+                           :default 60
                            :help "amass扫描超时时间(分) (default: %(default)s)"]
                           ["--ip-scan-timeout"
                            :type int
@@ -358,6 +381,11 @@
                            :type str
                            :default "screen"
                            :help "输出屏幕快照的session文件名 (default: %(default)s)"]
+                          ["-e" "--exclude"
+                           :nargs "?"
+                           :type (argparse.FileType "r")
+                           :default None
+                           :help "包含排除列表的文件,可以是域名或ip,支持glob格式匹配(*?)"]
                           ["-p" "--project-dir"
                            :type str
                            :required True
@@ -389,6 +417,9 @@
     (check-bin x))
 
   (setv targets (read-nargs-or-input-file opts.target opts.targets))
+
+  (when opts.exclude
+    (setv exclude-hosts (read-valid-lines opts.exclude)))
 
   (->> (gen-resolvers)
        (setv opts.resolvers))
