@@ -55,11 +55,12 @@
 
 (defn parse-subdomains
   [body]
-  (-> (BeautifulSoup body "lxml")
-      (.select-one "table#result_table")
-      parse-table-rows
-      (->> (map first))
-      list))
+  (some-> (BeautifulSoup body "lxml")
+          (.find-all "table" :id (re.compile ".*result.*"))
+          first
+          parse-table-rows
+          (->> (map first))
+          list))
 
 (defn get-subds
   [domain]

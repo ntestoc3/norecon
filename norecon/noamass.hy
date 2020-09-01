@@ -33,6 +33,7 @@
                                 "-timeout" (str timeout)
                                 #* opts
                                 "-d" domain]
+                               :timeout (* 60 (inc timeout))
                                :encoding "utf-8"
                                :stdout subprocess.PIPE))
        (if (zero? r.returncode)

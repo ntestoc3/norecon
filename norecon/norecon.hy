@@ -84,7 +84,8 @@
     (setv scan-domains
           (lfor d domains
                 ;; 没有扫描过或进行覆盖
-                :if (or (not (os.path.exists out-path))
+                :if (or (not (-> (os.path.join out-dir f"{d}.json")
+                                 (os.path.exists)))
                         opts.overwrite)
                 ;; 没有被排除
                 :if (not (exclude? d))
@@ -258,6 +259,7 @@
     (subprocess.run [subfinder-bin
                      "-o" subds-out
                      root-domain]
+                    :timeout 300
                     :encoding "utf-8")
 
     ;; 保存结果
