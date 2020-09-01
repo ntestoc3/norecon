@@ -39,17 +39,23 @@
         (w.write))))
 
 (defn render-project-notes
-  [project-dir item-dir template get-arg-fn &optional [postfix ""]]
+  [project-dir item-dir template get-arg-fn &optional [postfix ""] [gen-empty False]]
   "`get-arg-fn` 生成传递给模板参数的函数:接受参数为target(当前要生成的项目名)"
   (setv save-path (os.path.join project-dir item-dir))
   (for [f (glob (os.path.join project-dir item-dir "*.json"))]
     (setv target (fstem f))
-    (render->file template (get-arg-fn target)
-                  (os.path.join save-path f"{target}{postfix}.md"))))
+    (setv arg (get-arg-fn target))
+    (when (or gen-empty
+              (not (or (none? (of arg "data"))
+                       (empty? (of arg "data")))))
+      (render->file template
+                    arg
+                    (os.path.join save-path f"{target}{postfix}.md")))))
 
 (defn render-whois
-  [project-dir]
+  [project-dir &kwargs opts]
   (render-project-notes :project-dir project-dir
+                        #** opts
                         :item-dir "whois"
                         :template "whois.md"
                         :postfix "_whois"
@@ -58,8 +64,9 @@
                                        "target" target})))
 
 (defn render-domain
-  [project-dir]
+  [project-dir &kwargs opts]
   (render-project-notes :project-dir project-dir
+                        #** opts
                         :item-dir "domain"
                         :template "domain.md"
                         :postfix "_domain"
@@ -68,7 +75,7 @@
                                        "target" target})))
 
 (defn gen-screen-info
-  [target project-dir]
+  [target project-dir &kwargs opts]
   (some-> (read-screen-session target project-dir)
           (.get "pages")
           (.items)
@@ -84,8 +91,9 @@
                       d))))
 
 (defn render-ip
-  [project-dir]
+  [project-dir &kwargs opts]
   (render-project-notes :project-dir project-dir
+                        #** opts
                         :item-dir "ip"
                         :template "ip.md"
                         :get-arg-fn (fn [target]
@@ -95,8 +103,9 @@
                                        "target" target})))
 
 (defn render-record
-  [project-dir]
+  [project-dir &kwargs opts]
   (render-project-notes :project-dir project-dir
+                        #** opts
                         :item-dir "record"
                         :template "record.md"
                         :get-arg-fn (fn [target]
@@ -104,21 +113,34 @@
                                        "screen" (gen-screen-info target project-dir)
                                        "target" target})))
 
+(defn clear-reports
+  [project-dir]
+  (for [f (glob (os.path.join project-dir "*" "*.md"))]
+    (os.unlink f)))
+
 (defmainf [&rest args]
   (setv opts (parse-args [["-v" "--verbose"
                            :action "count"
                            :default 0]
+                          ["-e" "--gen-empty"
+                           :action "store_true"
+                           :help "是否生成空项 (default: %(default)s)"]
+                          ["-c" "--clear"
+                           :action "store_true"
+                           :help "删除生成的报告 (default: %(default)s)"]
                           ["project_dir"  :help "要生成报告的项目根目录"]]
                          (rest args)
                          :description "生成项目报告"))
 
   (set-logging-level opts.verbose)
 
-  (doto opts.project-dir
-        (render-whois)
-        (render-domain)
-        (render-record)
-        (render-ip))
+  (if opts.clear
+      (clear-reports opts.project-dir)
+      (doto opts.project-dir
+            (render-whois :gen-empty opts.gen-empty)
+            (render-domain :gen-empty opts.gen-empty)
+            (render-record :gen-empty opts.gen-empty)
+            (render-ip :gen-empty opts.gen-empty)))
 
   (logging.info "over!")
   )
