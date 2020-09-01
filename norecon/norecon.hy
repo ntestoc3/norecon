@@ -218,6 +218,7 @@
       (with [w (open out-path "w")]
         (json.dump None w))
 
+      (logging.info "ip service scan:%s" ip)
       (subprocess.run [nmap-bin
                        "-t" (str opts.ip-scan-timeout)
                        "-r" (str opts.masscan-rate)
