@@ -352,7 +352,7 @@
   (for [e exclude-hosts]
     (when (fnmatch host e)
       (return True)))
-  return False)
+  (return False))
 
 (defmainf [&rest args]
   (setv opts (parse-args [["--amass-timeout"
