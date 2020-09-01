@@ -372,12 +372,10 @@
                            :default 1000
                            :help "masscan扫描速率 (default: %(default)s)"]
                           ["--scan-cdn-ip"
-                           :type bool
-                           :default False
+                           :action "store_true"
                            :help "是否对cdn ip进行端口扫描 (default: %(default)s)"]
                           ["--overwrite"
-                           :type bool
-                           :default False
+                           :action "store_true"
                            :help "是否强制重新扫描(如果为False,则扫描过的项目不再重新扫描) (default: %(default)s)"]
                           ["-ss" "--screen-session"
                            :type str
