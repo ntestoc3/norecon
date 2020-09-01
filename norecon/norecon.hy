@@ -160,8 +160,8 @@
 (defn cdn-ip?
   [ip opts]
   "检测是否为cdn ip"
-  (setv net-name (-> (read-whois ip opts.project-dir)
-                     (get-in ["network" "name"])))
+  (setv net-name (some-> (read-whois ip opts.project-dir)
+                         (get-in ["network" "name"])))
   (in net-name ["CLOUDFLARENET"
                 "AKAMAI"
                 "CHINANETCENTER" ;; 网宿
@@ -204,13 +204,15 @@
         (logging.info "ip scan %s exclude!" ip)
         (continue))
 
+
+      ;; 注意必须放在cdn ip检测之前执行whois，否则无法正常检测
+      (bus.emit "new:whois" ip opts)
+
       ;; 检测cdn ip
       (when (and (cdn-ip? ip opts)
                  (not opts.scan-cdn-ip))
         (logging.info "ip scan %s skip cdn ip." ip)
         (continue))
-
-      (bus.emit "new:whois" ip opts)
 
       ;; 空json文件进行占位，没有扫描结果的ip不再扫描
       (with [w (open out-path "w")]
