@@ -122,8 +122,10 @@
                            :default "./"
                            :help "输出ip服务详情的目录，每个ip保存为一个文件,默认为当前目录"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["ip" :nargs "*" :help "要扫描的ip"]
                           ]
                          (rest args)

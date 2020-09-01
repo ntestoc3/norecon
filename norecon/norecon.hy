@@ -38,7 +38,7 @@
 
 ;;; gen resolvers
 (defn gen-resolvers
-  [&optional [force-update False] [timeout 5] [reliablity 0.8]]
+  [&optional [force-update False] [timeout 5] [reliablity 0.8] [verbose 0]]
   "生成resolvers,返回resolver文件路径"
   (logging.info "gen resolvers")
   (setv data-path (os.path.join (tempfile.gettempdir) "resolvers"))
@@ -50,6 +50,7 @@
     (subprocess.run [resolvers-bin
                      "-o" data-path
                      "-r" (str reliablity)
+                     "-v" (str verbose)
                      "-t" (str timeout)]
                     :encoding "utf-8"))
   data-path)
@@ -71,6 +72,7 @@
 
     (subprocess.run [whois-bin
                      "-o" out-path
+                     "-v" (str opts.verbose)
                      target]
                     :encoding "utf-8")))
 
@@ -97,8 +99,9 @@
                        #* (if opts.resolvers
                               ["-r" opts.resolvers]
                               [])
-                       "--save-empty" "True"
+                       "--save-empty"
                        "-o" out-dir
+                       "-v" (str opts.verbose)
                        #* scan-domains
                        ]
                       :encoding "utf-8"))
@@ -223,6 +226,7 @@
                        "-t" (str opts.ip-scan-timeout)
                        "-r" (str opts.masscan-rate)
                        "-d" out-dir
+                       "-v" (str opts.verbose)
                        ip
                        ]
                       :encoding "utf-8")
@@ -254,6 +258,7 @@
     (subprocess.run [amass-bin
                      "-t" (str opts.amass-timeout)
                      "-o" amass-out
+                     "-v" (str opts.verbose)
                      root-domain]
                     :encoding "utf-8")
 
@@ -261,6 +266,7 @@
     (setv [_ subds-out] (tempfile.mkstemp ".txt" f"subds_{root-domain}_"))
     (subprocess.run [subfinder-bin
                      "-o" subds-out
+                     "-v" (str opts.verbose)
                      root-domain]
                     :timeout 300
                     :encoding "utf-8")
@@ -299,6 +305,7 @@
                      "masscan_rate" 1000
                      "screen_session" "screen"
                      "overwrite" False
+                     "verbose" 2
                      "screenshot_timeout" 1000
                      "scan_cdn_ip" False}))
 
@@ -399,8 +406,10 @@
                            :default sys.stdin
                            :help "输入的目标"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["target" :nargs "*" :help "要扫描的目标，可以是域名或ip地址"]
                           ]
                          (rest args)
@@ -424,7 +433,7 @@
   (when opts.exclude
     (setv exclude-hosts (read-valid-lines opts.exclude)))
 
-  (->> (gen-resolvers)
+  (->> (gen-resolvers :verbose opts.verbose)
        (setv opts.resolvers))
 
   (defn network->ips

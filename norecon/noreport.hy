@@ -120,8 +120,10 @@
 
 (defmainf [&rest args]
   (setv opts (parse-args [["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["-e" "--gen-empty"
                            :action "store_true"
                            :help "是否生成空项 (default: %(default)s)"]

@@ -43,9 +43,10 @@
                            :default "scaned-path.txt"
                            :help "输出查询结果　 (default: %(default)s)"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
-                          ]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]]
                          (rest args)
                          :description "查询所有(https://主机/参数)的合法请求"))
 

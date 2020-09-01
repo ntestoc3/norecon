@@ -87,8 +87,10 @@
                            :default sys.stdout
                            :help "输出文件，保存有效的域名"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["domain" :nargs "*" :help "要查询的域名"]
                           ]
                          (rest args)

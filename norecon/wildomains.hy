@@ -112,8 +112,10 @@
                            :default sys.stdout
                            :help "输出合法的一级域名"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["domain" :nargs "*" :help "要检测的域名"]
                           ]
                          (rest args)

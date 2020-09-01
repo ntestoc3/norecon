@@ -101,8 +101,10 @@
                            :nargs "?"
                            :help "发送的消息类型 (default: %(default)s)"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["message" :nargs "?" :help "消息内容"]]
                          (rest args)
                          :description "发送微信消息"))

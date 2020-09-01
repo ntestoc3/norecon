@@ -106,13 +106,16 @@
                            :type int
                            :default 60
                            :help "记录查询超时时间(秒) (default: %(default)s)"]
+                          ["-v" "--verbose"
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["-o" "--output-dir"
                            :type str
                            :default "./"
+                           :nargs "?"
                            :help "输出域名查询信息的目录，每个域名保存一个文件,默认为当前目录"]
-                          ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
                           ["domain" :nargs "*" :help "域名列表"]
                           ]
                          (rest args)
@@ -121,12 +124,7 @@
 
   (setv resolver (when opts.resolvers
                    (read-valid-lines opts.resolvers)))
-  (setv domains  (if (opts.domains.isatty)
-                     (if opts.domain
-                         opts.domain
-                         (read-valid-lines opts.domains))
-                     (+ opts.domain
-                        (read-valid-lines opts.domains))))
+  (setv domains  (read-nargs-or-input-file opts.domain opts.domains))
 
   (os.makedirs opts.output-dir :exist-ok True)
   (for [d domains]

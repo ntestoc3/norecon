@@ -87,8 +87,10 @@
                            :default sys.stdout
                            :help "输出dns查询服务器列表"]
                           ["-v" "--verbose"
-                           :action "count"
-                           :default 0]
+                           :nargs "?"
+                           :type int
+                           :default 0
+                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ]
                          (rest args)
                          :description "获取dns查询服务器列表，并按访问速度排序"))
