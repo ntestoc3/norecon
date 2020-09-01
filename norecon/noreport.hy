@@ -52,28 +52,6 @@
                     arg
                     (os.path.join save-path f"{target}{postfix}.md")))))
 
-(defn render-whois
-  [project-dir &kwargs opts]
-  (render-project-notes :project-dir project-dir
-                        #** opts
-                        :item-dir "whois"
-                        :template "whois.md"
-                        :postfix "_whois"
-                        :get-arg-fn (fn [target]
-                                      {"data" (read-whois target project-dir)
-                                       "target" target})))
-
-(defn render-domain
-  [project-dir &kwargs opts]
-  (render-project-notes :project-dir project-dir
-                        #** opts
-                        :item-dir "domain"
-                        :template "domain.md"
-                        :postfix "_domain"
-                        :get-arg-fn (fn [target]
-                                      {"data" (read-domain target project-dir)
-                                       "target" target})))
-
 (defn gen-screen-info
   [target project-dir &kwargs opts]
   (some-> (read-screen-session target project-dir)
@@ -89,6 +67,48 @@
                                         (os.path.relpath (os.path.join project-dir "ip"))
                                         (->> (setv (of d "screenshotPath")))))))
                       d))))
+
+(defn render-whois
+  [project-dir &kwargs opts]
+  (render-project-notes :project-dir project-dir
+                        #** opts
+                        :item-dir "whois"
+                        :template "whois.md"
+                        :postfix "_whois"
+                        :get-arg-fn (fn [target]
+                                      {"data" (read-whois target project-dir)
+                                       "target" target})))
+
+(defn gen-domain-data
+  [target project-dir]
+  {"data" (lfor d (read-domain target project-dir)
+                {"domain" d
+                 "http-info" (some->2> (gen-screen-info d project-dir)
+                                       (lfor info
+                                             {"status" (.get info "status")
+                                              "title" (.get info "pageTitle")
+                                              "url" (.get info "url")
+                                              "tags" (.get info "tags")}))
+                 "ip-info" (some->2> (some-> (read-record d project-dir)
+                                             (->> (filter #%(= (.get %1 "type") "A")))
+                                             first
+                                             (.get "result"))
+                                     (lfor ip
+                                           {"ip" ip
+                                            "location" (get-location ip)
+                                            }))})
+   "target" target})
+
+(defn render-domain
+  [project-dir &kwargs opts]
+  (render-project-notes :project-dir project-dir
+                        #** opts
+                        :item-dir "domain"
+                        :template "domain.md"
+                        :postfix "_domain"
+                        :get-arg-fn #%(gen-domain-data %1 project-dir)))
+
+
 
 (defn render-ip
   [project-dir &kwargs opts]
