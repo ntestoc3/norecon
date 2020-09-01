@@ -92,13 +92,14 @@
      (print (.format "total run time: {:.5f} s" ~t) )
      ))
 
-(defmacro with-exception [&rest body]
+(defmacro with-exception [default-value &rest body]
   `(do
      (import logging)
      (try
        ~@body
-       (except [e Exception]
-         (logging.error "exception: %s" e)))))
+       (except [Exception]
+         (logging.exception "[Exception] use default value:%s" ~default-value)
+         ~default-value))))
 
 (require [hy.extra.anaphoric [*]])
 
@@ -113,9 +114,15 @@
        ~@body)
 
      (defn main []
-       (import sys logging helpers)
+       (import sys logging helpers [logging.handlers [RotatingFileHandler]])
+       (setv main-name (try (helpers.fstem --file--)
+                            (except [Exception]
+                              "console")))
        (logging.basicConfig :level logging.WARNING
-                            :handlers [(logging.FileHandler :filename f"app_{(helpers.fstem --file--)}.log")
+                            :handlers [(RotatingFileHandler
+                                         :filename f"app_{main-name}.log"
+                                         :maxBytes (* 5 1024 1024)
+                                         :backupCount 5)
                                        (logging.StreamHandler sys.stderr)]
                             :style "{"
                             :format "{asctime} [{levelname}] {filename}({funcName})[{lineno}] {message}")
@@ -129,9 +136,9 @@
            -1)))
 
      (when (= --name-- "__main__")
-      (setv ~retval (main))
-      (if (integer? ~retval)
-          (sys.exit ~retval)))))
+       (setv ~retval (main))
+       (if (integer? ~retval)
+           (sys.exit ~retval)))))
 
 (defn set-logging-level
   [n]

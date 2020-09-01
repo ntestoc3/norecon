@@ -89,16 +89,10 @@
 
 (defmainf [&rest args]
   (setv opts (parse-args [["--reset"
-                           :type bool
-                           :default False
-                           :const True
-                           :nargs "?"
+                           :action "store_true"
                            :help "重置配置文件"]
                           ["-s" "--show-qrcode"
-                           :type bool
-                           :default False
-                           :const True
-                           :nargs "?"
+                           :action "store_true"
                            :help "显示二维码，进行关注"]
                           ["-t" "--content-type"
                            :default "text"

@@ -100,9 +100,8 @@
                            :default "a,aaaa,mx,ns,txt,cname,soa"
                            :help "要查询的record类型,','分割 (default: %(default)s)"]
                           ["--save-empty"
-                           :type bool
-                           :default False
-                           :help "是否保存空结果 (default: %(default)s)"]
+                           :action "store_true"
+                           :help "是否保存空查询结果 (default: %(default)s)"]
                           ["-e" "--timeout"
                            :type int
                            :default 60
