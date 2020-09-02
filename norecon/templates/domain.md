@@ -19,9 +19,9 @@
     {%- endfor -%}
     </table>
   {%- endif -%} |
-  {%- if d['ip-info'] -%} <table><tr><th>ip</th><th>位置</th></tr>
+  {%- if d['ip-info'] -%} <table><tr><th>ip</th><th>网络名</th><th>位置</th></tr>
       {%- for ip in d['ip-info'] -%}
-        <tr><td>[[{{ ip['ip'] }}]]</td><td>{{ ip['location'] }}</td></tr>
+        <tr><td>[[{{ ip['ip'] }}]]</td><td>{{ ip['net-name'] }}<td>{{ ip['location'] }}</td></tr>
       {%- endfor -%}
     </table>
   {%- endif -%} |

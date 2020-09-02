@@ -4,8 +4,15 @@
 {% if data['host'] %}
 域名: {{ data['host'] }}
 {% endif %}
-
-位置: {{ location }}
+{% if data['cdn-type'] %}
+cdn类型: {{ data['cdn-type'] }}
+{% endif %}
+{% if data['net-name'] %}
+网络名: {{ data['net-name'] }}
+{% endif %}
+{% if data['location'] %}
+位置: {{ data['location'] }}
+{% endif %}
 
 | 端口　 |  协议 |  服务类型　| 产品　|
 | ----  | ---- | ---- | ---- |

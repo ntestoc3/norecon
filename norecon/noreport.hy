@@ -18,9 +18,7 @@
         [jinja2 [Environment
                  FileSystemLoader
                  PackageLoader]]
-        [glob [glob]]
-        [iploc [get-location]]
-        )
+        [glob [glob]])
 
 (setv curr-dir (try --file--
                     (os.path.dirname --file--)
@@ -94,9 +92,9 @@
                                              first
                                              (.get "result"))
                                      (lfor ip
-                                           {"ip" ip
-                                            "location" (get-location ip)
-                                            }))})
+                                           (merge-with #%(return %2)
+                                             (read-ip ip project-dir)
+                                             {"ip" ip})))})
    "target" target})
 
 (defn render-domain
@@ -119,7 +117,6 @@
                         :get-arg-fn (fn [target]
                                       {"data" (read-ip target project-dir)
                                        "screen" (gen-screen-info target project-dir)
-                                       "location" (get-location target)
                                        "target" target})))
 
 (defn render-record

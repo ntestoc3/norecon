@@ -24,6 +24,8 @@
         [project [*]]
         [shutil [which]]
         [fnmatch [fnmatch]]
+        [dns [resolver reversename]]
+        [iploc [get-location]]
         )
 
 (setv bus (EventBus))
@@ -160,15 +162,40 @@
                        "-report-out-name" f"{opts.screen-session}.html"
                        "-combine-sessions" sessions]))))
 
+(defn get-ip-host
+  [ip]
+  "根据ip地址反查域名"
+  (try
+    (some-> (reversename.from-address ip)
+            (resolver.query "PTR")
+            (first)
+            str)
+    (except [Exception]
+      "")))
+
+(defn get-net-name
+  [ip opts]
+  "获取`ip`的网络名"
+  (some-> (read-whois ip opts.project-dir)
+          (get-in ["network" "name"])))
+
+(setv cdn-names {"CLOUDFLARENET" "Cloudflare"
+                 "AKAMAI" "Akamai"
+                 "CHINANETCENTER" "ChinaNetCenter" ;;　网宿科技
+                 "AMAZO-CF" "CloudFront"})
+
+(defn cdn-name
+  [net-name]
+  "根据网络名获取对应的cdn名称"
+  (cdn-names.get net-name))
+
 (defn cdn-ip?
   [ip opts]
   "检测是否为cdn ip"
-  (setv net-name (some-> (read-whois ip opts.project-dir)
-                         (get-in ["network" "name"])))
-  (in net-name ["CLOUDFLARENET"
-                "AKAMAI"
-                "CHINANETCENTER" ;; 网宿
-                ]))
+  (-> (get-net-name ip opts)
+      cdn-name
+      none?
+      not))
 
 (with-decorator (bus.on "new:ips")
   (defn ip-scan
@@ -179,12 +206,12 @@
 
     (defn send-screenshot
       [ip]
-      (setv info (read-ip ip opts.project-dir))
-      (when info
-        (bus.emit "new:screenshot" ip opts
-                  :ports (some->> (.get info "ports")
-                                  (map #%(.get %1 "port"))
-                                  (str.join ",")))))
+      (some-> (read-ip ip opts.project-dir)
+              (.get "ports")
+              (some->> (map #%(.get %1 "port"))
+                       (str.join ",")
+                       (bus.emit "new:screenshot" ip opts
+                                 :ports ))))
 
     (for [ip ips]
       ;; 检测私有地址
@@ -207,19 +234,25 @@
         (logging.info "ip scan %s exclude!" ip)
         (continue))
 
-
       ;; 注意必须放在cdn ip检测之前执行whois，否则无法正常检测
       (bus.emit "new:whois" ip opts)
 
       ;; 检测cdn ip
+      (setv ip-net-name (get-net-name ip opts))
+      (setv ip-info {"ip" ip
+                     "host" (get-ip-host ip)
+                     "location" (get-location ip)
+                     "net-name" ip-net-name
+                     "cdn-type" (cdn-name ip-net-name)})
+
+      ;; 写入基本信息进行占位，没有扫描结果的ip不再扫描
+      (with [w (open out-path "w")]
+        (json.dump ip-info w :ensure-ascii False :indent 2 :sort-keys True :default str))
+
       (when (and (cdn-ip? ip opts)
                  (not opts.scan-cdn-ip))
-        (logging.info "ip scan %s skip cdn ip." ip)
+        (logging.info "ip service scan skip cdn ip:%s." ip)
         (continue))
-
-      ;; 空json文件进行占位，没有扫描结果的ip不再扫描
-      (with [w (open out-path "w")]
-        (json.dump None w))
 
       (logging.info "ip service scan:%s" ip)
       (subprocess.run [nmap-bin
@@ -231,6 +264,11 @@
                        ]
                       :encoding "utf-8")
 
+      (-> (read-ip ip opts.project-dir)
+          (ip-info.update))
+
+      (with [w (open out-path "w")]
+        (json.dump ip-info w :ensure-ascii False :indent 2 :sort-keys True :default str))
       (send-screenshot ip))))
 
 (with-decorator (bus.on "new:domain")
@@ -298,7 +336,7 @@
 
   (import [attrdict [AttrDict :as adict]])
 
-  (setv opts (adict {"project_dir" "hackerone"
+  (setv opts (adict {"project_dir" "../hackerone"
                      "resolvers" "./resolv"
                      "amass_timeout" 1
                      "ip_scan_timeout" 500
