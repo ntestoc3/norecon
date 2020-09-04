@@ -214,13 +214,6 @@
                                  :ports ))))
 
     (for [ip ips]
-      ;; 检测私有地址
-      (when (-> (ipaddress.ip-address ip)
-                (. is-global)
-                not)
-        (logging.warn "ip scan 跳过非公开地址:%s." ip)
-        (continue))
-
       ;; 检测是否已经扫描过
       (setv out-path f"{(os.path.join out-dir ip)}.json")
       (when (and (not opts.overwrite)
@@ -232,6 +225,17 @@
       ;; 检测是否排除
       (when (exclude? ip)
         (logging.info "ip scan %s exclude!" ip)
+        (continue))
+
+      ;; 检测私有地址
+      (when (-> (ipaddress.ip-address ip)
+                (. is-global)
+                not)
+        (with [w (open out-path "w")]
+          (json.dump {"ip" ip
+                      "location" (get-location ip)}
+                     w :ensure-ascii False :indent 2 :sort-keys True :default str))
+        (logging.warn "ip scan 跳过非公开地址:%s." ip)
         (continue))
 
       ;; 注意必须放在cdn ip检测之前执行whois，否则无法正常检测
