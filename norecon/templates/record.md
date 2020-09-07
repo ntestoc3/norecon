@@ -5,15 +5,16 @@
 
 | 别名　| 类型　| 过期时间　| 结果　|
 | ---- | ---- | ---- | ---- |
-{% for d in data -%}
-  | {{ d['canonical-name'] }} | {{ d['type'] }} | {{ d['expiration'] }} |
+{% for d in data %}
+| {{ d['canonical-name'] }} | {{ d['type'] }} | {{ d['expiration'] }} |
   {%- for l in d['result'] %}
     {%- if d['type'] == 'A' %}
       <li> [[{{ l }}]] </li>
     {%- else %}
       <li> {{ l }} </li>
     {%- endif %}
-  {%- endfor %}
+  {% endfor %}
+|
 {% endfor %}
 
 {% if screen %}
