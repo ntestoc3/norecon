@@ -9,7 +9,11 @@
   |[[{{ d['domain'] }}]] |
   {%- if d['http-info'] -%} <table> <tr> <th>url</th> <th>标题</th> <th>tags</th> <th>状态</th> </tr>
     {%- for hinfo in d['http-info'] -%}
-      <tr> <td> {{ hinfo['url'] }} </td> <td> {{ hinfo['title']|replace("|", "")|truncate(50, True) }} </td> <td>
+      <tr> <td> {{ hinfo['url'] }} </td> <td>
+{%- autoescape true -%}
+      {{ hinfo['title']|replace("|", "")|replace("\n", "")|replace("\r", "")|truncate(50, True) }} 
+{%- endautoescape -%}
+      </td> <td>
           {%- if hinfo['tags'] -%}
             {%- for t in hinfo['tags'] -%}
               <li> [{{ t['text']|replace("|", "")|truncate(27, True) }}]({{ t['link'] }}) </li>
