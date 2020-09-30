@@ -6,7 +6,7 @@
 #
 appdirs==1.4.4            # via rply
 astor==0.8.1              # via hy
-beautifulsoup4==4.9.1     # via bs4
+beautifulsoup4==4.9.2     # via bs4
 bs4==0.0.1                # via -r requirements.in
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
@@ -19,7 +19,7 @@ funcparserlib==0.3.6      # via hy
 future==0.18.2            # via python-whois
 hy==0.19.0                # via -r requirements.in
 idna==2.10                # via requests
-ipwhois==1.1.0            # via -r requirements.in
+ipwhois==1.2.0            # via -r requirements.in
 jinja2==2.11.2            # via -r requirements.in
 lxml==4.5.2               # via -r requirements.in
 markupsafe==1.1.1         # via jinja2
@@ -34,4 +34,4 @@ rply==0.7.7               # via hy
 six==1.15.0               # via validators
 soupsieve==2.0.1          # via beautifulsoup4
 urllib3==1.25.10          # via requests
-validators==0.18.0        # via -r requirements.in
+validators==0.18.1        # via -r requirements.in
