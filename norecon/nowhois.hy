@@ -20,7 +20,7 @@
         [publicsuffix2 [get-public-suffix]]
         )
 
-(with-decorator (retry Exception :delay 100 :backoff 4 :max-delay 280)
+(with-decorator (retry Exception :tries 5 :delay 100 :backoff 4 :max-delay 280)
  (defn nt-whois
    [target]
    (cond [(or (validators.ipv4 target)
