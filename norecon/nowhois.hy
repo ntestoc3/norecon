@@ -26,7 +26,9 @@
    (cond [(or (validators.ipv4 target)
               (validators.ipv6 target))
           (-> (IPWhois target)
-              (.lookup-rdap :asn-methods ["dns" "whois" "http"]))]
+              (.lookup-rdap :asn-methods ["dns" "whois" "http"]
+                            :inc-nir True ;; support Japan and South Korea
+                            ))]
 
          [(validators.domain target)
           (-> (get-public-suffix target)
