@@ -451,6 +451,7 @@
                            :nargs "?"
                            :type int
                            :default 0
+                           :const 1
                            :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["target" :nargs "*" :help "要扫描的目标，可以是域名或ip地址"]
                           ]

@@ -98,6 +98,7 @@
                            :nargs "?"
                            :type int
                            :default 0
+                           :const 1
                            :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["domain" :nargs "*" :help "要查找的域名"]]
                          (rest args)

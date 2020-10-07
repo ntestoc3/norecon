@@ -125,6 +125,7 @@
                            :nargs "?"
                            :type int
                            :default 0
+                           :const 1
                            :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
                           ["ip" :nargs "*" :help "要扫描的ip"]
                           ]
