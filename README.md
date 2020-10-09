@@ -55,7 +55,7 @@ ansible-playbook norecon.yml
 
   扫描完成后，生成报告:
   ```shell
-  noreport -v yahoo
+  noreport -v2  yahoo
   ```
   
 # 报告截图
