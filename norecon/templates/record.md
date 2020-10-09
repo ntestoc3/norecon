@@ -37,11 +37,12 @@
       {% endif %}
     {% endfor %}
 
+    {% if s['addrs'] %}
 ### ip地址
-
-    {% for ip in s['addrs'] -%}
-      - [[{{ip}}]]
-    {% endfor %}
+      {% for ip in s['addrs'] -%}
+        - [[{{ip}}]]
+      {% endfor %}
+    {% endif %}
 
 <center> <h5>{{ s['pageTitle'] }} </h5> {{ s['status'] }} </center>
 
