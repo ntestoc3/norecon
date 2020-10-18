@@ -66,6 +66,14 @@
                            :default 20
                            :help "扫描端口超时时间(秒) (default: %(default)s)"
                            ]
+                          ["--use-chrome-remote"
+                           :type bool
+                           :default (os.environ.get "USE_CHROME_REMOTE" False)
+                           :help "使用远程chrome (default: %(default)s)"]
+                          ["--chrome-dev-tools"
+                           :type str
+                           :default (os.environ.get "CHROME_DEV_TOOLS" "ws://localhost:3000")
+                           :help "chrome devtools地址 (default: %(default)s)"]
                           ["-ht" "--http-timeout"
                            :type int
                            :default 30
@@ -114,7 +122,10 @@
             :http-timeout opts.http-timeout
             :screenshot-timeout  opts.screenshot-timeout
             :timeout opts.timeout
-            )
+            :opts (if opts.use-chrome-remote
+                      ["-use-remote-chrome"
+                       "-chrome-dev-tools-url" opts.chrome-dev-tools]
+                      []))
 
   (logging.info "over!")
   )

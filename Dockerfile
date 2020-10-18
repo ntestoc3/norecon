@@ -1,7 +1,7 @@
 FROM python:3.7-slim-buster
 
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends ca-certificates masscan nmap && \
+  apt-get install -y --no-install-recommends masscan nmap && \
   apt-get install -y --no-install-recommends libxml2-dev libxslt-dev zlib1g-dev python3.7-dev gcc && \
   pip3 install --no-cache-dir norecon && \
   apt-get remove --purge --auto-remove -y libxml2-dev libxslt-dev zlib1g-dev python3.7-dev gcc && \
@@ -12,7 +12,7 @@ RUN apt-get update && \
 
 ENV AMASS_VERSION=3.10.5
 
-ENV AQUATONE_VERSION=1.7.1-beta.5
+ENV AQUATONE_VERSION=1.7.1-beta.7
 
 RUN echo "downloading amass..." && \
   apt-get update && \
@@ -36,5 +36,5 @@ ENV PATH /usr/local/bin:$PATH
 WORKDIR /data
 
 # make docker container running
-CMD cat
+CMD ["tail" "-f" "/dev/null"]
 

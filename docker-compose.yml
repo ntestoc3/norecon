@@ -1,0 +1,17 @@
+version: '3'
+services:
+  browserless:
+    image: browserless/chrome
+    hostname: browserless
+    container_name: chrome
+    ports:
+      - "127.0.0.1:3666:3000"
+  norecon:
+    image: norecon:0.909
+    hostname: norecon
+    container_name: norecon
+    depends_on:
+      - browserless
+    environment:
+      - CHROME_DEV_TOOLS=ws://browserless:3000
+      - USE_CHROME_REMOTE=true
