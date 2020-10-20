@@ -14,4 +14,3 @@ services:
       - browserless
     environment:
       - CHROME_DEV_TOOLS=ws://browserless:3000
-      - USE_CHROME_REMOTE=true
