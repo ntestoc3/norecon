@@ -3,7 +3,7 @@ name: Upload docker lastest
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
