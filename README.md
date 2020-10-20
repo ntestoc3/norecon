@@ -57,6 +57,12 @@ ansible-playbook norecon.yml
   ```shell
   noreport -v2  yahoo
   ```
+
+## 使用docker镜像
+   使用norecon镜像创建镜像，并把本地目录/data/project到docker容器的/data目录
+　　docker run -d --name norecon -v /data/project/:/data ntestoc/norecon:v0.911
+
+
   
 # 报告截图
   使用Obsidian显示报告结果

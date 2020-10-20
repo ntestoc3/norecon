@@ -42,5 +42,5 @@ ENV USE_CHROME_REMOTE=true
 WORKDIR /data
 
 # make docker container running
-CMD ["tail" "-f" "/dev/null"]
+CMD tail -f /dev/null
 
