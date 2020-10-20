@@ -32,4 +32,5 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: ntestoc/norecon
+        tags: lastest
         tag_with_ref: true
