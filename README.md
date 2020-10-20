@@ -59,13 +59,35 @@ ansible-playbook norecon.yml
   ```
 
 ## 使用docker镜像
-   使用norecon镜像创建镜像，并把本地目录/data/project到docker容器的/data目录
+   使用norecon镜像创建容器，把本地目录/data/project映射到docker容器的/data目录,并命名容器名为norecon:
 
+```shell
 　　docker run -d --name norecon -v /data/project/:/data ntestoc/norecon
+```
 
+   如果容器已经存在，则要删除已经创建的容器:
+```shell 
+   docker rm norecon
+```
+   
+   容器启动后,进入容器shell:
+```shell
+   docker exec -it norecon /bin/bash
+``` 
 
-
-
+   然后就可以正常使用norecon等命令，在容器的bash上操作是为了方便执行管道操作，读取stdin输入数据等。
+   
+   nowx的配置必须在容器的bash上操作,否则读不到stdin的token。
+   
+   容器中没有提供chrome,因此屏幕快照无法执行，可以自己使用docker配置browserless，
+   或使用提供的docker-compose.yml:
+```shell
+   wget https://raw.githubusercontent.com/ntestoc3/norecon/master/docker-compose.yml
+   docker-compose up -d
+```
+   docker-compose默认使用当前目录映射到/data,可以根据自己需要修改。
+   
+   退出容器的交互式shell使用CTRL-p, CTRL-q组合键。
   
 # 报告截图
   使用Obsidian显示报告结果

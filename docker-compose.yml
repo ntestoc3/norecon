@@ -7,10 +7,12 @@ services:
     ports:
       - "127.0.0.1:3666:3000"
   norecon:
-    image: norecon:0.909
+    image: ntestoc/norecon
     hostname: norecon
     container_name: norecon
     depends_on:
       - browserless
+    volumes:
+      - ".:/data:rw"
     environment:
       - CHROME_DEV_TOOLS=ws://browserless:3000
