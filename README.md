@@ -88,6 +88,12 @@ ansible-playbook norecon.yml
    docker-compose默认使用当前目录映射到/data,可以根据自己需要修改。
    
    退出容器的交互式shell使用CTRL-p, CTRL-q组合键。
+   
+   更新容器为最新版本(删除所有使用的image,再重新下载),在docker-compose.yml文件目录执行:
+```shell
+   docker-compose down --rmi all  && docker-compose up -d
+```   
+   或者直接在容器中使用pip更新
   
 # 报告截图
   使用Obsidian显示报告结果
