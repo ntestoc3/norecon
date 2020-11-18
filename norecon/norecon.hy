@@ -140,6 +140,10 @@
               :opts ["-report=false"
                      "-similar=false"
                      "-session-out-name" f"{host}.json"
+                     #* (if opts.use-chrome-remote
+                            ["-use-remote-chrome"
+                             "-chrome-dev-tools-url" opts.chrome-dev-tools]
+                            [])
                      ])))
 
 (with-decorator (bus.on "new:screenshot:html")
@@ -415,6 +419,14 @@
                            :type int
                            :default 600
                            :help "ip扫描超时时间(秒) (default: %(default)s)"]
+                          ["--use-chrome-remote"
+                           :type bool
+                           :default (os.environ.get "USE_CHROME_REMOTE" False)
+                           :help "使用远程chrome (default: %(default)s)"]
+                          ["--chrome-dev-tools"
+                           :type str
+                           :default (os.environ.get "CHROME_DEV_TOOLS" "ws://localhost:3000")
+                           :help "chrome devtools地址 (default: %(default)s)"]
                           ["--screenshot-timeout"
                            :type int
                            :default 1000
