@@ -22,7 +22,7 @@
         [publicsuffix2 [get-public-suffix]]
         )
 
-(setv ua (UserAgent :use-cache-server True ))
+(setv ua (UserAgent :use-cache-server True :verify-ssl False))
 (setv proxy None #_{"http" "http://localhost:8080"
                     "https" "http://localhost:8080"})
 
