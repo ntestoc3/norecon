@@ -237,7 +237,39 @@
       (os.path.splitext)
       first))
 
+(eval-when-compile
+  (defn parse-colon [sym]
+    (->> (.split (str sym) ":")
+         (map (fn [x]
+                (if (empty? x)
+                    None
+                    (int x))))
+         list))
+
+  (defn parse-indexing [sym]
+    (cond
+      [(in ":" (str sym)) `(slice ~@(parse-colon sym))]
+      [(in "..." (str sym)) 'Ellipsis]
+      [True sym])))
+
+(defmacro nget [ar &rest keys]
+  "numpy get
+(nget a (, 0 1 2 3 4) (, 1 2 3 4 5))
+(nget a 3: (, 0 2 5))
+(nget a 1:-1:2 3:5)
+(nget a ::2 3 None)
+(nget a ... 0)
+(nget a mask 2) "
+  `(get ~ar (, ~@(map parse-indexing keys))))
+
+(defmacro aget [ar &rest keys]
+  "array get as python"
+  `(get ~ar ~@(map parse-indexing keys)))
+
 (comment
+
+  (aget [1 2 3 4] 2:-1)
+
   ;; 重试3次，每次等待5秒
   (setv pf (with-retry-limit print :tries 3 :calls 2 :delay 5))
 
