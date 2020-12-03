@@ -40,12 +40,14 @@ cdn类型: {{ data['cdn-type'] }}
       {% endif %}
     {% endfor %}
 
+{% if s['addrs'] %}
 ### ip地址
 
     {% for ip in s['addrs'] -%}
       - [[{{ip}}]]
     {% endfor %}
 
+{% endif %}
 <center> <h5>{{ s['pageTitle'] }} </h5> {{ s['status'] }} </center>
 
 ![快照]({{ s['screenshotPath'] }})

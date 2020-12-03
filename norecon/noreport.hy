@@ -46,9 +46,13 @@
     (when (or gen-empty
               (not (or (none? (of arg "data"))
                        (empty? (of arg "data")))))
-      (render->file template
-                    arg
-                    (os.path.join save-path f"{target}{postfix}.md")))))
+      (try (render->file template
+                         arg
+                         (os.path.join save-path f"{target}{postfix}.md"))
+           (except [e Exception]
+             (logging.exception "render-notes template:%s, item:%s."
+                                template
+                                f))))))
 
 (defn gen-screen-info
   [target project-dir &kwargs opts]
