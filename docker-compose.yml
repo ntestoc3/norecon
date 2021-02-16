@@ -16,3 +16,4 @@ services:
       - ".:/data:rw"
     environment:
       - CHROME_DEV_TOOLS=ws://browserless:3000
+      - WXPUSHER_TOKEN=AT_xxxx

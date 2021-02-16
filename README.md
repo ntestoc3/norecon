@@ -32,15 +32,8 @@
   pip install norecon
   ```
 
-## 使用ansible批量安装
-　　不喜欢手动安装的话，可以使用ansible进行自动化安装,使用这个[playbooks](https://github.com/ntestoc3/playbooks):
-
-   git clone 项目到本地,配置好ansible,然后执行
-```shell
-ansible-playbook norecon.yml
-```
-   即可在指定的主机上安装好依赖程序及norecon包
-
+## 自动化安装
+  不喜欢手动安装的话，可以使用[ssh-scripts](https://github.com/ntestoc3/ssh-scripts#norecon)进行自动化安装
   
 ## 使用方法
   norecon -p 项目保存目录　域名或ip 
@@ -62,10 +55,11 @@ ansible-playbook norecon.yml
   ```
 
 ## 使用docker镜像
-   使用norecon镜像创建容器，把本地目录/data/project映射到docker容器的/data目录,并命名容器名为norecon:
+   使用norecon镜像创建容器，把本地目录/data/project映射到docker容器的/data目录,
+   设置nowx的token值为AT_xx(需要修改为自己申请的token,参考nowx部分),并命名容器名为norecon:
 
 ```shell
-　　docker run -d --name norecon -v /data/project/:/data ntestoc/norecon
+　　docker run -d --name norecon -e WXPUSHER_TOKEN=AT_xx -v /data/project/:/data ntestoc/norecon
 ```
 
    如果容器已经存在，则要删除已经创建的容器:
@@ -80,15 +74,14 @@ ansible-playbook norecon.yml
 
    然后就可以正常使用norecon等命令，在容器的bash上操作是为了方便执行管道操作，读取stdin输入数据等。
    
-   nowx的配置必须在容器的bash上操作,否则读不到stdin的token。
-   
    容器中没有提供chrome,因此屏幕快照无法执行，可以自己使用docker配置browserless，
    或使用提供的docker-compose.yml:
 ```shell
    wget https://raw.githubusercontent.com/ntestoc3/norecon/master/docker-compose.yml
+   # 修改docker-compose.yml中WXPUSHER_TOKEN的值, 参考nowx部分
    docker-compose up -d
 ```
-   docker-compose默认使用当前目录映射到/data,可以根据自己需要修改。
+   docker-compose默认使用当前目录映射到/data,可以根据自己需要修改;
    
    退出容器的交互式shell使用CTRL-p, CTRL-q组合键。
    
@@ -150,7 +143,7 @@ noresolvers -r 0.9 -t 3 -o resolve
   发送微信消息,借助[微信消息推送服务](http://wxpusher.zjiecode.com/docs/)发送消息．
   可以实现命令执行完毕后发送微信消息进行通知．
   
-  第一次运行输入nowx执行，根据提示进行配置:
+  - 第一次运行输入nowx执行，根据提示进行配置:
 ```shell
 ➜  sub-domains git:(master) ✗ nowx
 未发现token配置
@@ -160,13 +153,17 @@ noresolvers -r 0.9 -t 3 -o resolve
 网页打开下面的网址，微信扫码关注以接收消息：
 https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=xxxxxx
 ```
-
-  然后可以在执行时带上消息参数发送消息:
+  **或者直接通过环境变量设置token**:
+```sh
+  export WXPUSHER_TOKEN=AT_xxxx
+```
+  
+  - 然后可以在执行时带上消息参数发送消息:
 ```shell
 nowhois bing.com  ; nowx whois执行完毕,返回代码:$?
 ```  
-　　上面的命令在nowhois执行完毕后，nowx发送微信消息，通知完成及nowhois的返回代码．
-　　注意两个命令之间使用;分割．
+  上面的命令在nowhois执行完毕后，nowx发送微信消息，通知完成及nowhois的返回代码．
+  注意两个命令之间使用;分割．
 
 # 声明
   本程序仅供于学习交流，请使用者遵守《中华人民共和国网络安全法》，

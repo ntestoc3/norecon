@@ -13,24 +13,21 @@ RUN apt-get update && \
 # RUN setcap cap_net_raw=eip /usr/bin/masscan
 # RUN setcap cap_net_raw=eip /usr/bin/nmap
 
-ENV AMASS_VERSION=3.10.5
-
-ENV AQUATONE_VERSION=1.7.1-beta.8
-
 RUN echo "downloading amass..." && \
   apt-get update && \
   apt-get install -y --no-install-recommends ca-certificates curl bsdtar && \
-  curl -SL https://github.com/OWASP/Amass/releases/download/v$AMASS_VERSION/amass_linux_amd64.zip | \
+  curl -SL https://github.com/OWASP/Amass/releases/latest/download/amass_linux_amd64.zip | \
   bsdtar -xf- -C /tmp && \
   chmod +x /tmp/amass_linux_amd64/amass && \
   mv /tmp/amass_linux_amd64/amass /usr/local/bin/ && \
   echo "downloading aquatone..." && \
-  curl -SL  https://github.com/ntestoc3/aquatone/releases/download/v$AQUATONE_VERSION/aquatone_linux_amd64_1.7.1.zip | \
+  curl -SL  https://github.com/ntestoc3/aquatone/releases/latest/download/aquatone_linux_amd64_1.7.1.zip | \
   bsdtar -xf- -C /tmp && \
   chmod +x /tmp/aquatone && \
   mv -f /tmp/aquatone /usr/local/bin/ && \
   rm -rf /tmp/* && \
   rm -rf /app/* && \
+  curl -SL -o /usr/local/bin/findomain https://github.com/Findomain/Findomain/releases/latest/download/findomain-linux && \
   apt-get remove --purge --auto-remove -y ca-certificates curl bsdtar && \
   rm -r /var/lib/apt/lists/*
 
