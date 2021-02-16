@@ -4,54 +4,115 @@
 #
 #    pip-compile dev-requirements.in
 #
-astroid==2.4.2            # via pylint
-attrdict==2.0.1           # via -r dev-requirements.in
-backcall==0.2.0           # via ipython
-bleach==3.1.5             # via readme-renderer
-certifi==2020.6.20        # via requests
-cffi==1.14.2              # via cryptography
-chardet==3.0.4            # via requests
-colorama==0.4.3           # via twine
-cryptography==3.1         # via secretstorage
-decorator==4.4.2          # via ipython, traitlets
-docutils==0.16            # via readme-renderer
-idna==2.10                # via requests
-ipython-genutils==0.2.0   # via traitlets
-ipython==7.17.0           # via -r dev-requirements.in
-isort==4.3.21             # via pylint
-jedhy==1                  # via -r dev-requirements.in
-jedi==0.17.2              # via ipython
-jeepney==0.4.3            # via keyring, secretstorage
-keyring==21.3.1           # via twine
-lazy-object-proxy==1.4.3  # via astroid
-mccabe==0.6.1             # via pylint
-packaging==20.4           # via bleach
-parso==0.7.1              # via jedi
-pexpect==4.8.0            # via ipython
-pickleshare==0.7.5        # via ipython
-pkginfo==1.5.0.1          # via twine
-prompt-toolkit==3.0.5     # via ipython
-ptyprocess==0.6.0         # via pexpect
-pycparser==2.20           # via cffi
-pygments==2.6.1           # via ipython, readme-renderer
-pylint==2.5.3             # via -r dev-requirements.in
-pyparsing==2.4.7          # via packaging
-readme-renderer==26.0     # via twine
-requests-toolbelt==0.9.1  # via twine
-requests==2.24.0          # via requests-toolbelt, twine
-rfc3986==1.4.0            # via twine
-secretstorage==3.1.2      # via keyring
-six==1.15.0               # via astroid, attrdict, bleach, cryptography, packaging, readme-renderer, traitlets
-toml==0.10.1              # via pylint
-toolz==0.10.0             # via jedhy
-tqdm==4.48.2              # via twine
-traitlets==4.3.3          # via ipython
-twine==3.2.0              # via -r dev-requirements.in
-urllib3==1.25.10          # via requests
-wcwidth==0.2.5            # via prompt-toolkit
-webencodings==0.5.1       # via bleach
-wheel==0.35.1             # via -r dev-requirements.in
-wrapt==1.12.1             # via astroid
+--index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+astroid==2.4.2
+    # via pylint
+attrdict==2.0.1
+    # via -r dev-requirements.in
+backcall==0.2.0
+    # via ipython
+bleach==3.3.0
+    # via readme-renderer
+certifi==2020.12.5
+    # via requests
+cffi==1.14.4
+    # via cryptography
+chardet==4.0.0
+    # via requests
+colorama==0.4.4
+    # via twine
+cryptography==3.3.1
+    # via secretstorage
+decorator==4.4.2
+    # via ipython
+docutils==0.16
+    # via readme-renderer
+idna==2.10
+    # via requests
+ipython-genutils==0.2.0
+    # via traitlets
+ipython==7.20.0
+    # via -r dev-requirements.in
+isort==5.7.0
+    # via pylint
+jedhy==1
+    # via -r dev-requirements.in
+jedi==0.18.0
+    # via ipython
+jeepney==0.6.0
+    # via
+    #   keyring
+    #   secretstorage
+keyring==22.0.1
+    # via twine
+lazy-object-proxy==1.4.3
+    # via astroid
+mccabe==0.6.1
+    # via pylint
+packaging==20.9
+    # via bleach
+parso==0.8.1
+    # via jedi
+pexpect==4.8.0
+    # via ipython
+pickleshare==0.7.5
+    # via ipython
+pkginfo==1.7.0
+    # via twine
+prompt-toolkit==3.0.14
+    # via ipython
+ptyprocess==0.7.0
+    # via pexpect
+pycparser==2.20
+    # via cffi
+pygments==2.7.4
+    # via
+    #   ipython
+    #   readme-renderer
+pylint==2.6.0
+    # via -r dev-requirements.in
+pyparsing==2.4.7
+    # via packaging
+readme-renderer==28.0
+    # via twine
+requests-toolbelt==0.9.1
+    # via twine
+requests==2.25.1
+    # via
+    #   requests-toolbelt
+    #   twine
+rfc3986==1.4.0
+    # via twine
+secretstorage==3.3.0
+    # via keyring
+six==1.15.0
+    # via
+    #   astroid
+    #   attrdict
+    #   bleach
+    #   cryptography
+    #   readme-renderer
+toml==0.10.2
+    # via pylint
+toolz==0.11.1
+    # via jedhy
+tqdm==4.56.0
+    # via twine
+traitlets==5.0.5
+    # via ipython
+twine==3.3.0
+    # via -r dev-requirements.in
+urllib3==1.26.3
+    # via requests
+wcwidth==0.2.5
+    # via prompt-toolkit
+webencodings==0.5.1
+    # via bleach
+wheel==0.36.2
+    # via -r dev-requirements.in
+wrapt==1.12.1
+    # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

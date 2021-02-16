@@ -112,8 +112,10 @@
 
   (set-logging-level opts.verbose)
 
-  (setv token (some-> (read-config)
-                      (.get "token")))
+  (setv token (or
+                (os.environ.get "WXPUSHER_TOKEN")
+                (some-> (read-config)
+                        (.get "token"))))
   (when (or (not token)
             opts.reset)
     (unless token

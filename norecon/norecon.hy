@@ -36,6 +36,7 @@
       nmap-bin "nonmap"
       amass-bin "noamass"
       subfinder-bin "nosubsfinder"
+      findomain-bin "nofindomain"
       )
 
 ;;; gen resolvers
@@ -308,6 +309,14 @@
                      root-domain]
                     :encoding "utf-8")
 
+    ;; findomain查询
+    (setv [_ findomain-out] (tempfile.mkstemp ".txt" f"findomain_{root-domain}_"))
+    (subprocess.run [findomain-bin
+                     "-o" findomain-out
+                     "-v" (str opts.verbose)
+                     root-domain]
+                    :encoding "utf-8")
+
     ;; 使用网页查询
     (setv [_ subds-out] (tempfile.mkstemp ".txt" f"subds_{root-domain}_"))
     (subprocess.run [subfinder-bin
@@ -320,9 +329,11 @@
     ;; 保存结果
     (with [outf (open out-path "w")
            r1 (open amass-out)
-           r2 (open subds-out)]
+           r2 (open subds-out)
+           r3 (open findomain-out)]
       (-> (concat (read-valid-lines r1)
-                  (read-valid-lines r2))
+                  (read-valid-lines r2)
+                  (read-valid-lines r3))
           (->> (map #%(-> (str.lower %1)
                           (str.strip "."))))
           set
@@ -331,6 +342,7 @@
 
     (os.unlink amass-out)
     (os.unlink subds-out)
+    (os.unlink findomain-out)
 
     (send-record-query)))
 

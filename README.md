@@ -12,6 +12,9 @@
 ### amass 
    用于子域名查找,[下载地址](https://github.com/OWASP/Amass/releases)
 
+### findomain 
+   用于快速子域名查找 [findomain](https://github.com/Findomain/Findomain/releases)
+
 ### nmap
    用于服务扫描
 
@@ -128,6 +131,9 @@ noresolvers -r 0.9 -t 3 -o resolve
 ## noamass
   调用amass查询子域名
  
+## nofindomain
+  调用findomain查询子域名
+  
 ## nowhois
   whois查询域名或ip
  

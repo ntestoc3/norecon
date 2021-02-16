@@ -4,34 +4,77 @@
 #
 #    pip-compile
 #
-appdirs==1.4.4            # via rply
-astor==0.8.1              # via hy
-beautifulsoup4==4.9.2     # via bs4
-bs4==0.0.1                # via -r requirements.in
-certifi==2020.6.20        # via requests
-chardet==3.0.4            # via requests
-colorama==0.4.3           # via hy
-decorator==4.4.2          # via retry, validators
-dnspython==2.0.0          # via -r requirements.in, ipwhois
-event-bus==1.0.2          # via -r requirements.in
-fake-useragent==0.1.11    # via -r requirements.in
-funcparserlib==0.3.6      # via hy
-future==0.18.2            # via python-whois
-hy==0.19.0                # via -r requirements.in
-idna==2.10                # via requests
-ipwhois==1.2.0            # via -r requirements.in
-jinja2==2.11.2            # via -r requirements.in
-lxml==4.5.2               # via -r requirements.in
-markupsafe==1.1.1         # via jinja2
-publicsuffix2==2.20191221  # via -r requirements.in
-py==1.9.0                 # via retry
-python-whois==0.7.3       # via -r requirements.in
-qqwry-py3==1.1.0          # via -r requirements.in
-ratelimit==2.2.1          # via -r requirements.in
-requests==2.24.0          # via -r requirements.in
-retry==0.9.2              # via -r requirements.in
-rply==0.7.7               # via hy
-six==1.15.0               # via validators
-soupsieve==2.0.1          # via beautifulsoup4
-urllib3==1.25.10          # via requests
-validators==0.18.1        # via -r requirements.in
+--index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+appdirs==1.4.4
+    # via rply
+astor==0.8.1
+    # via hy
+beautifulsoup4==4.9.3
+    # via bs4
+bs4==0.0.1
+    # via -r requirements.in
+certifi==2020.12.5
+    # via
+    #   elasticsearch
+    #   requests
+chardet==4.0.0
+    # via requests
+colorama==0.4.4
+    # via hy
+decorator==4.4.2
+    # via
+    #   retry
+    #   validators
+dnspython==2.0.0
+    # via
+    #   -r requirements.in
+    #   ipwhois
+elasticsearch==7.11.0
+    # via -r requirements.in
+event-bus==1.0.2
+    # via -r requirements.in
+fake-useragent==0.1.11
+    # via -r requirements.in
+funcparserlib==0.3.6
+    # via hy
+future==0.18.2
+    # via python-whois
+hy==0.20.0
+    # via -r requirements.in
+idna==2.10
+    # via requests
+ipwhois==1.2.0
+    # via -r requirements.in
+jinja2==2.11.3
+    # via -r requirements.in
+lxml==4.6.2
+    # via -r requirements.in
+markupsafe==1.1.1
+    # via jinja2
+publicsuffix2==2.20191221
+    # via -r requirements.in
+py==1.10.0
+    # via retry
+python-whois==0.7.3
+    # via -r requirements.in
+qqwry-py3==1.2.1
+    # via -r requirements.in
+ratelimit==2.2.1
+    # via -r requirements.in
+requests==2.25.1
+    # via -r requirements.in
+retry==0.9.2
+    # via -r requirements.in
+rply==0.7.8
+    # via hy
+six==1.15.0
+    # via validators
+soupsieve==2.1
+    # via beautifulsoup4
+urllib3==1.26.3
+    # via
+    #   elasticsearch
+    #   requests
+validators==0.18.2
+    # via -r requirements.in
