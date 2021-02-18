@@ -65,9 +65,9 @@
 
   (set-logging-level opts.verbose)
 
-  (->> (amass opts.target :timeout opts.timeout)
-       (str.join "\n")
-       (opts.output.write))
+  (some->> (amass opts.target :timeout opts.timeout)
+           (str.join "\n")
+           (opts.output.write))
 
   (logging.info "over!")
   )

@@ -53,13 +53,13 @@
                            :help "日志输出级别(0,1,2)  (default: %(default)s)"]
                           ["target" :help "目标"]]
                          (rest args)
-                         :description "使用amass查询子域名"))
+                         :description "使用findomain查询子域名"))
 
   (set-logging-level opts.verbose)
 
-  (->> (findomain opts.target :timeout opts.timeout)
-       (str.join "\n")
-       (opts.output.write))
+  (some->> (findomain opts.target :timeout opts.timeout)
+           (str.join "\n")
+           (opts.output.write))
 
   (logging.info "over!")
   )

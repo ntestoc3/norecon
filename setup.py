@@ -12,7 +12,7 @@ with open(path.join(here, "requirements.in"), encoding='utf-8') as f:
     requirements = f.read().splitlines()
 
 setup(name='norecon',
-      version=0.916,
+      version=0.917,
       description='auto recon tools for domain, whois, service scan and screenshot.',
       author='ntestoc3',
       author_email='ntoooooon@outlook.com',
@@ -36,7 +36,7 @@ setup(name='norecon',
               'norecon=norecon.norecon:main',
               'domainvalid=norecon.domainvalid:main',
               'noamass=norecon.noamass:main',
-              'nofindomain=norecon.nofindomain:main'
+              'nofindomain=norecon.nofindomain:main',
               'noffuf=norecon.noffuf:main',
               'nonmap=norecon.nonmap:main',
               'norecords=norecon.norecords:main',
