@@ -5,6 +5,10 @@
   
   生成markdown格式的报告，可以使用[Obsidian](https://obsidian.md/)或vscode的[markdown notes插件](https://marketplace.visualstudio.com/items?itemName=kortina.vscode-markdown-notes)打开,借助双向链接功能，方便查看．
   
+
+  或者导出报告为sqlite数据库，然后使用BI工具进行数据分析，比如[metabase](https://github.com/metabase/metabase)
+  ![分析截图](https://github.com/ntestoc3/norecon/raw/master/resources/metabase.png)
+
 # 安装使用
 
 ## 安装依赖程序
@@ -52,6 +56,15 @@
   扫描完成后，生成报告:
   ```shell
   noreport -v2  yahoo
+  ```
+  
+  或者导出数据到sqlite数据库:
+  ```shell 
+  noreport -v2 -s http://localhost:8080 -t sqlite yahoo
+  ```
+  如果要访问数据库中的screen链接，需要在项目的父文件夹启动http server:
+  ```shell 
+  python -m http.server 8080
   ```
 
 ## 使用docker镜像

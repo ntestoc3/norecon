@@ -278,7 +278,8 @@
   (setv file-server-path f"{server}/{(fstem project)}/screen")
   (defn fix-path
     [path]
-    f"{file-server-path}/{path}")
+    (when path
+      f"{file-server-path}/{path}"))
   (save-project-items db
                       project
                       "screen"
