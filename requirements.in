@@ -13,4 +13,6 @@ validators
 event-bus
 qqwry-py3
 Jinja2
-elasticsearch
+pandas
+sqlalchemy
+sqlite-utils

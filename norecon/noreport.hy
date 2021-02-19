@@ -10,7 +10,9 @@
         re
         json
         argparse
+        validators
 
+        [sqlite-utils [Database]]
         [datetime [datetime]]
         [helpers [*]]
         [project [*]]
@@ -139,32 +141,258 @@
   (for [f (glob (os.path.join project-dir "*" "*.md"))]
     (os.unlink f)))
 
+(defn insert-table
+  [db table data &kwargs kwargs]
+  (-> (of db table)
+      (.insert-all data #** kwargs)))
+
+(defn save-project-items
+  [db project-dir item-dir gen-data-fn &optional table-name column-order]
+  "`gen-data-fn` 生成插入数据库的记录行:接受参数为target(当前要生成的项目名),
+                 返回行列表"
+  (setv table-name (or table-name item-dir))
+  (logging.info f"save project {project-dir} {item-dir} to table {table-name}.")
+  (setv save-path (os.path.join project-dir item-dir))
+  (for [f (glob (os.path.join project-dir item-dir "*.json"))]
+    (setv target (fstem f))
+    (setv data (gen-data-fn target))
+    (when-not (or (none? data)
+                  (empty? data))
+              (insert-table db table-name data :alter True :column-order column-order))))
+
+(defn ip-whois->db
+  [db project &optional opts]
+  (save-project-items db
+                      project
+                      "whois"
+                      (fn [target]
+                        (when (or (validators.ipv4 target)
+                                  (validators.ipv6 target))
+                          (setv info (read-whois target project))
+                          (setv net-info (-> (info.get "network" {})
+                                             (select-keys ["cidr"
+                                                           "name"
+                                                           "start_address"
+                                                           "end_address"])))
+                          [(doto (select-keys info ["asn"
+                                                    "asn_cidr"
+                                                    "asn_date"
+                                                    "asn_country_code"
+                                                    "asn_registry"
+                                                    "entities"])
+                                 (.update net-info)
+                                 (assoc "ip" target))]))
+                      :table-name "ip_whois"
+                      :column-order ["ip"
+                                     "cidr"
+                                     "name"
+                                     "start_address"
+                                     "end_address"]))
+
+(defn domain-whois->db
+  [db project &optional opts]
+  (save-project-items db
+                      project
+                      "whois"
+                      (fn [target]
+                        (when (validators.domain target)
+                          (setv info (read-whois target project))
+                          [(doto (select-keys info ["country"
+                                                    "org"
+                                                    "registrar"
+                                                    "updated_date"
+                                                    "creation_date"
+                                                    "expiration_date"
+                                                    "name_servers"])
+                                 (assoc "domain" target))]))
+                      :table-name "domain_whois"
+                      :column-order ["domain"
+                                     "org"
+                                     "registrar"
+                                     "country"
+                                     "updated_date"]))
+
+(defn record->db
+  [db project &optional opts]
+  (save-project-items db
+                      project
+                      "record"
+                      (fn [target]
+                        (setv items [])
+                        (for [r (read-record target project)]
+                          (if (= "A" (get r "type"))
+                              (for [ip (get r "result")]
+                                (setv r1 (r.copy))
+                                (assoc r1 "ip" ip)
+                                (items.append r1))
+                              (items.append r)))
+                        items)
+                      :column-order ["name" "type" "ip" "canonical-name" "result"]))
+
+(defn ip->db
+  [db project &optional opts]
+  (save-project-items db
+                      project
+                      "ip"
+                      (fn [target]
+                        (setv info (read-ip target project))
+                        (when info
+                          (.pop info "ports" None)
+                          (when-not (info.get "host" None)
+                            (assoc info "host" None))
+                          [info]))
+                      :column-order ["ip" "net-name" "host" "cdn-type" "location"]))
+
+(defn ports->db
+  [db project &optional opts]
+  (save-project-items db
+                      project
+                      "ip"
+                      (fn [target]
+                        (lfor port (-> (read-ip target project)
+                                       (.get "ports" []))
+                              (doto (dflatten port)
+                                    (assoc "ip" target))))
+                      :column-order ["ip"
+                                     "port"
+                                     "protocol"
+                                     "service_type"
+                                     "service_product"
+                                     "service_version"
+                                     "service_extra"
+                                     "service_device-type"
+                                     "service_finger-print"]
+                      :table-name "ports"))
+
+(defn screen->db
+  [db project &optional opts]
+  (setv server (if opts opts.file-server ""))
+  (setv file-server-path f"{server}/{(fstem project)}/screen")
+  (defn fix-path
+    [path]
+    f"{file-server-path}/{path}")
+  (save-project-items db
+                      project
+                      "screen"
+                      (fn [target]
+                        (when-not (= target "screen")
+                                  (setv screen (read-screen-session target project))
+                                  (lfor page (-> (screen.get "pages" {})
+                                                 (.values))
+                                        (do (setv r (select-keys page ["url"
+                                                                       "status"
+                                                                       "pageTitle"
+                                                                       "tags"
+                                                                       "headersPath"
+                                                                       "bodyPath"
+                                                                       "screenshotPath"]))
+                                            (assoc r "tags"
+                                                   (some->> (r.get "tags" None)
+                                                            (map (fn [tag]
+                                                                   (tag.get "text" None)))
+                                                            (str.join " | ")))
+                                            (assoc r
+                                                   "domain" None
+                                                   "ip" None
+                                                   "headersPath" (fix-path (r.get "headersPath"))
+                                                   "bodyPath" (fix-path (r.get "bodyPath"))
+                                                   "screenshotPath" (fix-path (r.get "screenshotPath")))
+                                            (if (validators.domain target)
+                                                (assoc r "domain" target)
+                                                (assoc r "ip" target))
+                                            r))))
+                      :column-order ["domain"
+                                     "ip"
+                                     "url"
+                                     "status"
+                                     "tags"
+                                     "pageTitle"
+                                     "headersPath"
+                                     "bodyPath"
+                                     "screenshotPath"]))
+
+(defn project->db
+  [project &optional db-path opts]
+  (setv proj-name (fstem project))
+  (setv db-path (or db-path
+                    (os.path.join project f"{proj-name}.db")))
+  (print f"writting project info to sqlite3 db:{db-path}")
+  (setv db (Database db-path :recreate True))
+
+  ;; 保存表
+  (ip-whois->db db project :opts opts)
+  (domain-whois->db db project :opts opts)
+  (record->db db project :opts opts)
+  (ip->db db project :opts opts)
+  (ports->db db project :opts opts)
+  (screen->db db project :opts opts)
+
+  ;; 添加约束，方便数据关联
+  (.add-foreign-key (of db "record") "name" "screen" "domain" :ignore True)
+  (.add-foreign-key (of db "record") "ip" "ip" "ip" :ignore True)
+
+  (.add-foreign-key (of db "ip") "ip" "ports" "ip" :ignore True)
+
+  (.add-foreign-key (of db "ports") "ip" "ip" "ip" :ignore True)
+
+  (.add-foreign-key (of db "screen") "domain" "record" "name" :ignore True)
+  (.add-foreign-key (of db "screen") "ip" "ip" "ip" :ignore True)
+
+  (.add-foreign-key (of db "ip_whois") "ip" "ip" "ip" :ignore True)
+  (.add-foreign-key (of db "domain_whois") "domain" "record" "name" :ignore True)
+  db)
+
+(require [hy.contrib.profile [profile/calls]])
 (defmainf [&rest args]
   (setv opts (parse-args [["-v" "--verbose"
                            :nargs "?"
                            :type int
                            :default 0
                            :const 1
-                           :help "日志输出级别(0,1,2)　 (default: %(default)s)"]
+                           :help "日志输出级别(0,1,2) (default: %(default)s)"]
                           ["-e" "--gen-empty"
                            :action "store_true"
                            :help "是否生成空项 (default: %(default)s)"]
+                          ["-d" "--db-file"
+                           :help "保存的数据库文件名,如果不指定，则数据库文件名为:{项目文件名}.db"]
+                          ["-t" "--type"
+                           :default "md"
+                           :type str
+                           :choices ["md" "sqlite"]
+                           :nargs "?"
+                           :help "生成的报告类型 (default: %(default)s)"]
+                          ["-s" "--file-server"
+                           :default "http://localhost"
+                           :help "文件服务器地址，用于sqlite中screen表的静态文件访问 (default: %(default)s)"
+                           ]
                           ["-c" "--clear"
                            :action "store_true"
-                           :help "删除生成的报告 (default: %(default)s)"]
+                           :help "删除生成的报告,仅针对md报告 (default: %(default)s)"]
                           ["project_dir"  :help "要生成报告的项目根目录"]]
                          (rest args)
                          :description "生成项目报告"))
 
   (set-logging-level opts.verbose)
 
-  (if opts.clear
-      (clear-reports opts.project-dir)
-      (doto opts.project-dir
-            (render-whois :gen-empty opts.gen-empty)
-            (render-domain :gen-empty opts.gen-empty)
-            (render-record :gen-empty opts.gen-empty)
-            (render-ip :gen-empty opts.gen-empty)))
+  (cond
+    [opts.clear
+     (clear-reports opts.project-dir)]
+
+    [(= opts.type "md")
+     (doto opts.project-dir
+           (render-whois :gen-empty opts.gen-empty)
+           (render-domain :gen-empty opts.gen-empty)
+           (render-record :gen-empty opts.gen-empty)
+           (render-ip :gen-empty opts.gen-empty))]
+
+    [(= opts.type "sqlite")
+     (profile/calls (project->db opts.project-dir
+                                 :db-path opts.db-file
+                                 :opts opts))]
+
+    [True
+     (logging.error "unsupport type:%s" opts.type)])
 
   (logging.info "over!")
   )
+

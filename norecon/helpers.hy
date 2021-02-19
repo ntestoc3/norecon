@@ -1,4 +1,9 @@
 
+(defmacro when-not [test &rest body]
+  `(if ~test
+       None
+       (do ~@body)))
+
 (defmacro ->2> [head &rest args]
   "Thread macro for second arg"
   (setv ret head)
@@ -243,7 +248,7 @@
          (map (fn [x]
                 (if (empty? x)
                     None
-                    (int x))))
+                    (read-str x))))
          list))
 
   (defn parse-indexing [sym]
@@ -253,7 +258,7 @@
       [True sym])))
 
 (defmacro nget [ar &rest keys]
-  "numpy get
+  "numpy get,注意:前后不能使用表达式
 (nget a (, 0 1 2 3 4) (, 1 2 3 4 5))
 (nget a 3: (, 0 2 5))
 (nget a 1:-1:2 3:5)
@@ -264,6 +269,7 @@
 
 (defmacro aget [ar &rest keys]
   "array get as python"
+  (print "keys:" keys "len:" (len keys))
   `(get ~ar ~@(map parse-indexing keys)))
 
 (comment
@@ -279,3 +285,26 @@
 
   (pf 78))
 
+(import [collections [MutableMapping]])
+(defn dflatten
+  [d &optional [parent-key ""] [sep "_"]]
+  (setv items [])
+  (for [(, k v) (d.items)]
+    (setv new-key (if parent-key
+                      (+ parent-key sep k)
+                      k))
+    (cond
+      [(instance? MutableMapping v)
+       (-> (dflatten v :parent-key new-key :sep sep)
+           (.items)
+           (items.extend))]
+
+      [True
+       (items.append (, new-key v))]))
+  (dict items))
+
+(defn chunks
+  [l n]
+  (for [i (range 0 (len l) n)]
+    (setv j (+ i n))
+    (yield (aget l i:j))))
