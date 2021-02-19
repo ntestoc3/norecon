@@ -303,8 +303,13 @@
        (items.append (, new-key v))]))
   (dict items))
 
-(defn chunks
-  [l n]
-  (for [i (range 0 (len l) n)]
-    (setv j (+ i n))
-    (yield (aget l i:j))))
+(import [itertools [islice]])
+(defn split-every
+  [n iterable]
+  (setv i (iter iterable))
+  (setv piece (-> (islice i n)
+                  list))
+  (while piece
+    (yield piece)
+    (setv piece (-> (islice i n)
+                    list))))

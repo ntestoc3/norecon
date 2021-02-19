@@ -13,6 +13,4 @@ validators
 event-bus
 qqwry-py3
 Jinja2
-pandas
-sqlalchemy
 sqlite-utils

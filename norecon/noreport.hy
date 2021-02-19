@@ -11,6 +11,7 @@
         json
         argparse
         validators
+        itertools
 
         [sqlite-utils [Database]]
         [datetime [datetime]]
@@ -153,12 +154,19 @@
   (setv table-name (or table-name item-dir))
   (logging.info f"save project {project-dir} {item-dir} to table {table-name}.")
   (setv save-path (os.path.join project-dir item-dir))
-  (for [f (glob (os.path.join project-dir item-dir "*.json"))]
-    (setv target (fstem f))
-    (setv data (gen-data-fn target))
-    (when-not (or (none? data)
-                  (empty? data))
-              (insert-table db table-name data :alter True :column-order column-order))))
+
+  (for [datas (->> (os.path.join project-dir item-dir "*.json")
+                   (glob)
+                   (map (fn [f]
+                          (-> (fstem f)
+                              (gen-data-fn))))
+                   (filter (fn [data]
+                             (not (or (none? data)
+                                      (empty? data)))))
+                   (split-every 200))]
+    (setv rows (cat datas))
+    (logging.info "insert rows:%d" (len rows))
+    (insert-table db table-name rows :alter True :column-order column-order)))
 
 (defn ip-whois->db
   [db project &optional opts]
@@ -386,9 +394,12 @@
            (render-ip :gen-empty opts.gen-empty))]
 
     [(= opts.type "sqlite")
-     (profile/calls (project->db opts.project-dir
+     #_(profile/calls (project->db opts.project-dir
                                  :db-path opts.db-file
-                                 :opts opts))]
+                                 :opts opts))
+     (project->db opts.project-dir
+                  :db-path opts.db-file
+                  :opts opts)]
 
     [True
      (logging.error "unsupport type:%s" opts.type)])
