@@ -46,12 +46,12 @@
 
 (defn resolve
   [ns &optional [target "bing.com"] [timeout 5]]
+  (logging.debug "test resolver %s" ns)
   (try (-> (doto (Resolver :configure False)
                  (setattr "nameservers" [ns])
                  (setattr "lifetime" timeout))
            (.resolve target :raise-on-no-answer False))
-       (except [[dns.exception.Timeout
-                 dns.resolver.NoNameservers]]
+       (except []
          None)))
 
 (defn float-range [x &optional [min-f 0.1] [max-f 1.0]]
